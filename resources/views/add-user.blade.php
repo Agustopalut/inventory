@@ -27,7 +27,8 @@
                         </div>
                         <div class="mb-3">
                             <label for="exampleInputPassword1" class="form-label">Role</label>
-                            <select name="role" class="form-select" id="">
+                            <select name="role" class="form-select @error('role') is-invalid
+                            @enderror" id="">
                                 <option value="">Pilih Role</option>
                                 <option value="manager">Manager</option>
                                 <option value="guest">Guest</option>

@@ -4,7 +4,7 @@
     <h1 class="mt-4">Barang master</h1>
 
     <div class="row text-end  w-100">
-        @can('input-barang-master')
+        @can('cetak-pdf')
             <div class="col-md-12 mt-4">
                 <a href="{{ route('print.barang-master') }}" class="btn btn-primary">Cetak pdf</a>
             </div>

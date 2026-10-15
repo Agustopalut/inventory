@@ -296,13 +296,6 @@ class ApprovalRequestController extends Controller
         }
     }
 
-    public function deleteBarangKeluar($idrequest, $aksi, $kode)
-    {
-        try {
-        } catch (\Exception $e) {
-            //throw $th;
-        }
-    }
 
     public function updateStatusStokOpname(Request $request, $id, $aksi)
     {

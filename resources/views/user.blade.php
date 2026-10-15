@@ -8,9 +8,6 @@
             <div class="col-md-9">
                 <a href="/add-user" class="btn btn-primary">Tambah user</a>
             </div>
-            <div class="col-md-3">
-                <input type="text" class="form-control-md w-70 form-control left cari-user" placeholder="Cari user">
-            </div>
         </div>
     @endcan
 

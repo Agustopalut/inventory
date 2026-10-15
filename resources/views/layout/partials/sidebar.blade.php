@@ -63,7 +63,6 @@
                         </div>
                     </a>
                 @endcan
-
                 <a class="nav-link" href="">
                     <a class="nav-link collapsed" href="#" data-bs-toggle="collapse"
                         data-bs-target="#collapseLayouts3" aria-expanded="false" aria-controls="collapseLayouts">
@@ -76,6 +75,7 @@
                         </nav>
                     </div>
                 </a>
+
                 <hr class="mb-0">
                 <form action="/logout" method="post">
                     @csrf
