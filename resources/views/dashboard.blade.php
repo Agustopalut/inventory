@@ -10,7 +10,7 @@
             <div class="card bg-primary text-white mb-4">
                 <div class="card-body">Jumlah barang</div>
                 <div class="card-footer d-flex align-items-center justify-content-between">
-                    <a class="small text-white stretched-link" href="#">0 barang</a>
+                    <a class="small text-white stretched-link" href="#">{{ $barangMaster->count() }} barang</a>
                     <div class="small text-white"><i class="fas fa-angle-right"></i></div>
                 </div>
             </div>
@@ -20,7 +20,7 @@
                 <div class="card-body">Jumlah barang masuk {{ \Carbon\Carbon::now()->locale('id')->translatedFormat('F') }}
                 </div>
                 <div class="card-footer d-flex align-items-center justify-content-between">
-                    <a class="small text-white stretched-link" href="#">0 barang</a>
+                    <a class="small text-white stretched-link" href="#">{{ $barangMasuk->count() }} barang</a>
                     <div class="small text-white"><i class="fas fa-angle-right"></i></div>
                 </div>
             </div>
@@ -30,7 +30,7 @@
                 <div class="card-body">Jumlahbarang keluar {{ \Carbon\Carbon::now()->locale('id')->translatedFormat('F') }}
                 </div>
                 <div class="card-footer d-flex align-items-center justify-content-between">
-                    <a class="small text-white stretched-link" href="#">0 barang</a>
+                    <a class="small text-white stretched-link" href="#">{{ $barangKeluar->count() }} barang</a>
                     <div class="small text-white"><i class="fas fa-angle-right"></i></div>
                 </div>
             </div>

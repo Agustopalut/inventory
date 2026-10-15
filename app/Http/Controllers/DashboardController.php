@@ -2,8 +2,12 @@
 
 namespace App\Http\Controllers;
 
+use App\Models\BarangkeluarHeader;
+use App\Models\Barangmaster;
+use App\Models\Barangmasuk;
 use App\Models\History;
 use Illuminate\Http\Request;
+use Illuminate\Support\Carbon;
 
 class DashboardController extends Controller
 {
@@ -12,9 +16,19 @@ class DashboardController extends Controller
 
         $data = History::orderBy('id','desc')
             ->paginate(10);
+        $barangMasuk = Barangmasuk::whereMonth('tanggal_masuk',Carbon::now()->month)
+                    ->whereYear('tanggal_masuk',Carbon::now()->year)
+                     ->get();
+        $barangKeluar = BarangkeluarHeader::whereMonth('tanggal_keluar',Carbon::now()->month)
+                    ->whereYear('tanggal_keluar',Carbon::now()->year)
+                     ->get();
+        $barangMaster = Barangmaster::all();
         return view('dashboard', [
             'title' => 'dashboard',
-            'data' => $data
+            'data' => $data,
+            'barangMasuk' => $barangMasuk,
+            'barangKeluar' => $barangKeluar,
+            'barangMaster' => $barangMaster
         ]);
     }
 }
