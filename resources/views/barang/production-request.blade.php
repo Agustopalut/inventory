@@ -4,11 +4,14 @@
     <h1 class="mt-4">Request production management</h1>
 
     <div class="row mt-4">
-        <div class="col-md-9">
-            <a href="/input/production-request" class="btn btn-primary">Request barang</a>
-        </div>
+        @can('input-production-request')
+            <div class="col-md-9">
+                <a href="/input/production-request" class="btn btn-primary">Request barang</a>
+            </div>
+        @endcan
+
         <div class="col-md-3">
-            <input type="text" class="form-control-md w-70 form-control left cari-user" placeholder="Cari user">
+            <input type="text" class="form-control-md w-70 form-control left cari-user" placeholder="Cari request">
         </div>
     </div>
     <table class="table mt-4">
@@ -36,12 +39,16 @@
                 <tr>
                     <td class="text-center" scope="row">{{ $loop->iteration }}</td>
                     <td class="text-center" scope="row">{{ $item->kd_production_request }}</td>
-                    <td class="text-center">{{ \Carbon\Carbon::parse($item->tanggal_request)->locale('id')->translatedFormat('d F Y, h:i: a') }}</td>
+                    <td class="text-center">
+                        {{ \Carbon\Carbon::parse($item->tanggal_request)->locale('id')->translatedFormat('d F Y, h:i: a') }}
+                    </td>
                     <td class="text-center">{{ $item->production_request_detail->count() }}</td>
                     <td class="text-center">{{ $item->user->name }}</td>
                     <td class="text-center">
-                        <a href="{{ route('detail.production-request',['id' => $item->kd_production_request]) }}" class="btn btn-success btn-sm">Details</a>
-                        <form action="{{ route('delete.production-request',['id' => $item->kd_production_request]) }}" class="d-inline" method="post">
+                        <a href="{{ route('detail.production-request', ['id' => $item->kd_production_request]) }}"
+                            class="btn btn-success btn-sm">Details</a>
+                        <form action="{{ route('delete.production-request', ['id' => $item->kd_production_request]) }}"
+                            class="d-inline" method="post">
                             @csrf
                             @method('DELETE')
                             <button type="submit" class="btn btn-danger btn-sm btn-delete">Delete</button>

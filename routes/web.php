@@ -86,7 +86,7 @@ Route::middleware('auth')->group(function () {
     Route::get('/cetak/stok-opname/filter',[StokopnameController::class,'filter'])->name('filter.stok-opname');
     Route::get('/cetak/stok-opname/pdf',[PdfController::class,'stok_opname'])->name('print.stok-opname');
 
-    Route::get('/production-request',[ProductionrequestController::class,'index']);
+    Route::get('/production-request',[ProductionrequestController::class,'index'])->name('production-request.index');
     Route::get('/input/production-request',[ProductionrequestController::class,'input']);
     Route::post('/input/production-request',[ProductionrequestController::class,'store']);
     Route::delete('/delete/production-request/{id}',[ProductionrequestController::class,'delete'])->name('delete.production-request');

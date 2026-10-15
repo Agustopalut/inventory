@@ -24,7 +24,13 @@ class AuthController extends Controller
         ]);
 
         if(Auth::attempt($credentials)){
+            
             $request->session()->regenerate();
+
+
+            if(Auth::user()->getRoleNames()->first() === 'production') {
+                return redirect()->route('production-request.index');
+            }
 
             return redirect()->route('dashboard');
         }

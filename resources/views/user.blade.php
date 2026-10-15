@@ -3,21 +3,27 @@
 @section('content')
     <h1 class="mt-4">User</h1>
 
-    <div class="row">
-        <div class="col-md-9">
-            <a href="/add-user" class="btn btn-primary">Tambah user</a>
+    @can('input-user')
+        <div class="row">
+            <div class="col-md-9">
+                <a href="/add-user" class="btn btn-primary">Tambah user</a>
+            </div>
+            <div class="col-md-3">
+                <input type="text" class="form-control-md w-70 form-control left cari-user" placeholder="Cari user">
+            </div>
         </div>
-        <div class="col-md-3">
-            <input type="text" class="form-control-md w-70 form-control left cari-user" placeholder="Cari user">
-        </div>
-    </div>
+    @endcan
+
     <table class="table">
         <thead>
             <tr class="text-center">
                 <th scope="col-md-2">No</th>
                 <th scope="col-md-4">Nama</th>
                 <th scope="col-md-4">Role</th>
-                <th scope="col-md-2">Action</th>
+                @can('update-user')
+                    <th scope="col-md-2">Action</th>
+                @endcan
+
             </tr>
         </thead>
         <tbody>
@@ -27,16 +33,19 @@
                     <th scope="row">{{ $loop->iteration }}</th>
                     <td>{{ $user->name }}</td>
                     <td>{{ $user->getRoleNames()->first() }}</td>
-                    <td>
-                        <a href="/update/user/{{ $user->id }}" class="btn btn-primary">Update</a>
+                    @can('update-user')
+                        <td>
+                            <a href="/update/user/{{ $user->id }}" class="btn btn-primary">Update</a>
 
-                        <form action="/delete/user/{{ $user->id }}" method="post" class="d-inline">
-                            @csrf
-                            @method('DELETE')
-                            <button type="submit" class="btn btn-delete btn-danger">Delete</button>
-                        </form>
+                            <form action="/delete/user/{{ $user->id }}" method="post" class="d-inline">
+                                @csrf
+                                @method('DELETE')
+                                <button type="submit" class="btn btn-delete btn-danger">Delete</button>
+                            </form>
 
-                    </td>
+                        </td>
+                    @endcan
+
                 </tr>
             @endforeach
 

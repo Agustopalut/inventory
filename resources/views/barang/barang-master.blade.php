@@ -10,7 +10,7 @@
             </div>
         @endcan
 
-        <div class="col-md-3">
+        <div class="col-md-3 mt-2">
             <input type="text" class="form-control-md w-70 form-control left cari-user" placeholder="Cari barang">
         </div>
     </div>

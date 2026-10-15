@@ -10,7 +10,7 @@
             </div>
         @endcan
         <div class="col-md-3">
-            <input type="text" class="form-control-md w-70 form-control left cari-user" placeholder="Cari user">
+            <input type="text" class="form-control-md w-70 form-control left cari-user" placeholder="Cari stok opname">
         </div>
     </div>
     <table class="table mt-3">
