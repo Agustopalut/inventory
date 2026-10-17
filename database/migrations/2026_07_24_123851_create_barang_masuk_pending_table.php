@@ -20,7 +20,7 @@ return new class extends Migration
             ->on('barang_master');
             
             $table->unsignedInteger('jumlah');
-            $table->unsignedInteger('sisa')->default(0);
+            $table->decimal('sisa',10,2)->default(0);
             $table->unsignedInteger('harga_satuan');
             $table->date('tanggal_masuk')->nullable();
             $table->foreignId('user_id')->constrained('users');

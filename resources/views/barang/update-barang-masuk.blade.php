@@ -24,7 +24,7 @@
                 <div class="row mt-5">
                     <div class="col-md-6">
                         <label for="hargaSatuan" class="form-label">Harga satuan </label>
-                        <input type="text" class="form-control" name="harga_satuan" value="Rp{{ number_format($barang->harga_satuan, 0, ',', '.');}}" id="hargaSatuan" >
+                        <input type="text" class="form-control" name="harga_satuan" value="{{$barang->harga_satuan}}" id="hargaSatuan" >
                     </div>
                     <div class="col-md-6">
                         <label for="jumlahBarang" class="form-label">Jumlah Masuk </label>

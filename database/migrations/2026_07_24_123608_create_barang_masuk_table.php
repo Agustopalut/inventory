@@ -19,7 +19,7 @@ return new class extends Migration
             ->references('id_barang')
             ->on('barang_master');
             
-            $table->decimal('jumlah',10,2);
+            $table->unsignedInteger('jumlah');
             $table->decimal('sisa',10,2)->default(0);
             $table->unsignedInteger('harga_satuan');
             $table->date('tanggal_masuk')->nullable();

@@ -3,6 +3,10 @@
 @section('content')
     <h1 class="mt-4">Approval Request</h1>
 
+    @php
+        $hasPending = $data->contains('status', 'pending');
+    @endphp
+
     <table class="table mt-5" border="1">
         <thead>
             <tr>
@@ -12,7 +16,12 @@
                 <th class="text-center" scope="col-md-2">Aksi</th>
                 <th class="text-center" scope="col-md-2">Tanggal Request</th>
                 <th class="text-center" scope="col-md-2">Status</th>
-                <th class="text-center" scope="col-md-2">Actions</th>
+                @can('update-approval-request')
+                    @if ($hasPending)
+                        <th class="text-center" scope="col-md-2">Actions</th>
+                    @endif
+                @endcan
+
             </tr>
         </thead>
         <tbody>
@@ -33,14 +42,16 @@
                         <td class="text-center"><span class="badge bg-danger text-light">{{ $item->status }}</span></td>
                     @endif
 
+
                     @can('update-approval-request')
-                        @if ($item->status !== 'approved')
+                        @if ($item->status !== 'approved' && $item->status !== 'rejected')
                             <td class="text-center">
                                 <a href="/update/approval/{{ Str::slug($item->modul) }}/{{ $item->aksi }}/{{ $item->kd_transaksi_pending }}/{{ $item->id_request }}"
                                     class="btn btn-primary">Update</a>
                             </td>
                         @endif
                     @endcan
+
                 </tr>
             @endforeach
         </tbody>

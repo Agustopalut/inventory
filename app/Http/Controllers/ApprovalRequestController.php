@@ -129,7 +129,7 @@ class ApprovalRequestController extends Controller
                         'kd_barang_masuk' => $kdBarangMasuk,
                         'jumlah_yang_diambil' => $jumlah
                     ]);
-                    $barang->decrement('stok',$jumlah);
+                    $barang->decrement('stok', $jumlah);
                 }
                 $keterangan = Auth::user()->name . " Mengubah status request barang keluar dengan kd : " . $id . " menjadi approved";
                 // untuk history
@@ -168,7 +168,7 @@ class ApprovalRequestController extends Controller
                         // kembalikan semua yang diambil
                         $barangmasuk->sisa += $item->jumlah_yang_diambil;
                         $barang->stok += $item->jumlah_yang_diambil;
-                       
+
 
                         // simpan
                         $barang->save();
@@ -177,8 +177,8 @@ class ApprovalRequestController extends Controller
 
                     BarangkeluarDetail::where('kd_barang_keluar', $id)->delete();
                     BarangkeluarDetailPending::where('kd_barang_keluar_pending', $id)->delete();
-                    BarangkeluarHeaderPending::where('kd_barang_keluar_pending',$id)->delete();
-                    
+                    BarangkeluarHeaderPending::where('kd_barang_keluar_pending', $id)->delete();
+
 
                     $header->delete();
 
@@ -207,92 +207,182 @@ class ApprovalRequestController extends Controller
     public function updateStatus(Request $request, $id_referensi, $aksi)
     {
 
+        $validate = $request->validate(
+            [
+                'status' => 'required'
+            ],
+            [
+                'status.required' => 'Status wajib dipilih'
+            ]
+        );
+
 
         if ($aksi === 'Input') {
-            $idRequest = $request->id_request;
-            $validate = $request->validate(
-                [
-                    'status' => 'required'
-                ],
-                [
-                    'status.required' => 'Status wajib dipilih'
-                ]
-            );
-            $getApproval = ApprovalRequest::where('kd_transaksi_pending', $id_referensi)
-                ->where('aksi', $aksi)
-                ->where('id_request', $idRequest)
-                ->firstOrFail();
-            // dd($request->status);
-            $getApproval->status = $validate['status'];
+            if ($validate['status'] === 'approved') {
+                // jika approved
+                $idRequest = $request->id_request;
 
-            $getApproval->save();
+                $getApproval = ApprovalRequest::where('kd_transaksi_pending', $id_referensi)
+                    ->where('aksi', $aksi)
+                    ->where('id_request', $idRequest)
+                    ->firstOrFail();
+                // dd($request->status);
+                $getApproval->status = $validate['status'];
 
-            $item = BarangMasukPending::with('barang_master')->where('kd_barang_masuk_pending', $id_referensi)->firstOrFail();
-            Barangmasuk::create([
-                'kd_barang_masuk' => $id_referensi,
-                'id_barang' => $item->barang_master->id_barang,
-                'jumlah' => $item->jumlah,
-                'harga_satuan' => $item->harga_satuan,
-                'sisa' => $item->sisa,
-                'tanggal_masuk' => $item->tanggal_masuk,
-                'user_id' => $item->user_id
-            ]);
+                $getApproval->save();
 
-            $barangMaster = Barangmaster::where('id_barang', $item->id_barang)->first();
-            $barangMaster->stok += $item->jumlah;
-            $barangMaster->save();
+                $item = BarangMasukPending::with('barang_master')->where('kd_barang_masuk_pending', $id_referensi)->firstOrFail();
+                Barangmasuk::create([
+                    'kd_barang_masuk' => $id_referensi,
+                    'id_barang' => $item->barang_master->id_barang,
+                    'jumlah' => $item->jumlah,
+                    'harga_satuan' => $item->harga_satuan,
+                    'sisa' => $item->sisa,
+                    'tanggal_masuk' => $item->tanggal_masuk,
+                    'user_id' => $item->user_id
+                ]);
 
-            History::create([
-                'user_id' => Auth::id(),
-                'keterangan' => Auth::user()->name . ' Mengubah status request Barang masuk : ' . $id_referensi . ' menjadi approved',
-                'tanggal' => Carbon::now()
-            ]);
+                $barangMaster = Barangmaster::where('id_barang', $item->id_barang)->first();
+                $barangMaster->stok += $item->jumlah;
+                $barangMaster->save();
 
-            return redirect('/approval-request')->with('success', 'Data barang masuk berhasil di Approved');
+                History::create([
+                    'user_id' => Auth::id(),
+                    'keterangan' => Auth::user()->name . ' Mengubah status request Barang masuk : ' . $id_referensi . ' menjadi approved',
+                    'tanggal' => Carbon::now()
+                ]);
+
+                return redirect('/approval-request')->with('success', 'Data barang masuk berhasil di Approved');
+            } else if ($validate['status'] === 'rejected') {
+                //  rejected input
+
+                try {
+                    $barangPending = BarangMasukPending::where('kd_barang_masuk_pending', $id_referensi)->firstOrFail();
+                    ApprovalRequest::where('kd_transaksi_pending', $id_referensi)
+                        ->where('aksi', $aksi)
+                        ->where('id_request', $request->id_request)
+                        ->update([
+                            'status' => $validate['status']
+                        ]);
+                    $barangPending->delete();
+
+                    History::create([
+                        'user_id' => Auth::id(),
+                        'keterangan' => Auth::user()->name . ' Mengubah status request input barang masuk menjadi rejected dengan kode : ' . $id_referensi,
+                        'tanggal' => Carbon::now()
+                    ]);
+
+
+                    return redirect('/approval-request')->with('success', 'Data barang masuk di Reject');
+                } catch (\Exception $e) {
+                    // return back()
+                    //     ->withInput()
+                    //     ->with('error',$e->getMessage());
+                    dd($e->getMessage());
+                }
+            }
         } else if ($aksi === 'update') {
-            $itemPending = BarangMasukPending::find($id_referensi);
-            $barangMasuk = Barangmasuk::find($id_referensi);
-            $getApproval = ApprovalRequest::where('kd_transaksi_pending', $id_referensi);
-            $validate = $request->validate(
-                [
-                    'status' => 'required'
-                ],
-                [
-                    'status.required' => 'Status wajib dipilih'
-                ]
-            );
 
-            $barangMasuk->update([
-                'jumlah' => $itemPending->jumlah,
-                'harga_satuan' => $itemPending->harga_satuan
-            ]);
+            if ($validate['status'] === 'approved') {
+                // approved update
+                $itemPending = BarangMasukPending::find($id_referensi);
+                $barangMasuk = Barangmasuk::find($id_referensi);
+                $getApproval = ApprovalRequest::where('kd_transaksi_pending', $id_referensi);
+                $validate = $request->validate(
+                    [
+                        'status' => 'required'
+                    ],
+                    [
+                        'status.required' => 'Status wajib dipilih'
+                    ]
+                );
 
-            ApprovalRequest::where('kd_transaksi_pending', $id_referensi)->update([
-                'status' => $validate['status']
-            ]);
+                $barangMasuk->update([
+                    'jumlah' => $itemPending->jumlah,
+                    'harga_satuan' => $itemPending->harga_satuan
+                ]);
 
-            History::create([
-                'user_id' => Auth::id(),
-                'keterangan' => Auth::user()->name . ' Mengubah status request update barang masuk menjadi approved dengan kode : ' . $id_referensi,
-                'tanggal' => Carbon::now()
-            ]);
+                ApprovalRequest::where('kd_transaksi_pending', $id_referensi)
+                    ->where('aksi', $aksi)
+                    ->where('id_request', $request->id_request)
+                    ->update([
+                        'status' => $validate['status']
+                    ]);
 
-            return redirect('/approval-request')->with('success', 'Data berhasil di approved');
+                History::create([
+                    'user_id' => Auth::id(),
+                    'keterangan' => Auth::user()->name . ' Mengubah status request update barang masuk menjadi approved dengan kode : ' . $id_referensi,
+                    'tanggal' => Carbon::now()
+                ]);
+
+                return redirect('/approval-request')->with('success', 'Data berhasil di approved');
+            } else if ($validate['status'] === 'rejected') {
+                // rejected update
+                $barangMasuk = Barangmasuk::where('kd_barang_masuk', $id_referensi)->firstOrFail();
+                $barangPending = BarangMasukPending::where('kd_barang_masuk_pending', $id_referensi)->firstOrFail();
+
+                $barangPending->update([
+                    'jumlah' => $barangMasuk->jumlah,
+                    'harga_satuan' => $barangMasuk->harga_satuan
+                ]);
+
+                ApprovalRequest::where('kd_transaksi_pending', $id_referensi)
+                    ->where('aksi', $aksi)
+                    ->where('id_request', $request->id_request)
+                    ->update([
+                        'status' => $validate['status']
+                    ]);
+                History::create([
+                    'user_id' => Auth::id(),
+                    'keterangan' => Auth::user()->name . ' Mengubah status request input barang masuk menjadi rejected dengan kode : ' . $id_referensi,
+                    'tanggal' => Carbon::now()
+                ]);
+
+                return redirect('/approval-request')->with('success', 'Request update barang masuk di rejected');
+            }
         } else {
-            $barangMasuk = Barangmasuk::with('barang_master')->where('kd_barang_masuk', $id_referensi)->firstOrFail();
-            $namaBarang = $barangMasuk->barang_master->nama_barang;
-            $barangMasukPending = BarangmasukPending::where('kd_barang_masuk_pending', $id_referensi)->firstOrFail();
+            if ($validate['status'] === 'approved') {
 
-            $barangMasuk->delete();
-            $barangMasukPending->delete();
+                $barangMasuk = Barangmasuk::with('barang_master')->where('kd_barang_masuk', $id_referensi)->firstOrFail();
+                $namaBarang = $barangMasuk->barang_master->nama_barang;
+                $barangMasukPending = BarangmasukPending::where('kd_barang_masuk_pending', $id_referensi)->firstOrFail();
 
-            History::create([
-                'user_id' => Auth::id(),
-                'keterangan' => Auth::user()->name . ' Menyetujui menghapus barang masuk ' . $namaBarang . ' dengan kode : ' . $id_referensi,
-                'tanggal' => Carbon::now()
-            ]);
+                $barangMasuk->delete();
+                $barangMasukPending->delete();
 
-            return redirect('/barang-masuk')->with('success', 'Barang masuk berhasil dihapus');
+                ApprovalRequest::where('kd_transaksi_pending', $id_referensi)
+                    ->where('aksi', $aksi)
+                    ->where('id_request', $request->id_request)
+                    ->update([
+                        'status' => $validate['status']
+                    ]);
+
+                History::create([
+                    'user_id' => Auth::id(),
+                    'keterangan' => Auth::user()->name . ' Menyetujui menghapus barang masuk ' . $namaBarang . ' dengan kode : ' . $id_referensi,
+                    'tanggal' => Carbon::now()
+                ]);
+
+                return redirect('/approval-request')->with('success', 'Barang masuk berhasil dihapus');
+            } else if ($validate['status'] === 'rejected') {
+                $barangMasuk = Barangmasuk::with('barang_master')->where('kd_barang_masuk', $id_referensi)->firstOrFail();
+                $namaBarang = $barangMasuk->barang_master->nama_barang;
+
+                ApprovalRequest::where('kd_transaksi_pending', $id_referensi)
+                    ->where('aksi', $aksi)
+                    ->where('id_request', $request->id_request)
+                    ->update([
+                        'status' => $validate['status']
+                    ]);
+
+                History::create([
+                    'user_id' => Auth::id(),
+                    'keterangan' => Auth::user()->name . ' Membatalkan menghapus barang masuk ' . $namaBarang . ' dengan kode : ' . $id_referensi,
+                    'tanggal' => Carbon::now()
+                ]);
+
+                return redirect('/approval-request')->with('success', 'Membatalkan Barang masuk dihapus');
+            }
         }
     }
 
@@ -349,7 +439,7 @@ class ApprovalRequestController extends Controller
         } else {
 
             try {
-                DB::transaction(function () use ($request, $id, $aksi,$validated) {
+                DB::transaction(function () use ($request, $id, $aksi, $validated) {
 
                     $getApproval = ApprovalRequest::where('kd_transaksi_pending', $id)
                         ->where('id_request', $request->id_request)
@@ -358,10 +448,10 @@ class ApprovalRequestController extends Controller
                     $getApproval->status = $validated['status'];
                     $getApproval->save();
 
-                    $headerOpname = StokOpnameHeader::where('kd_opname',$id)->firstOrFail();
-                    $headerOpnamePending = StokOpnameHeaderPending::where('kd_opname_pending',$id)->firstOrFail();
-                    StokOpnameDetail::where('kd_opname',$id)->delete();
-                    StokOpnameDetailPending::where('kd_opname_pending',$id)->delete();
+                    $headerOpname = StokOpnameHeader::where('kd_opname', $id)->firstOrFail();
+                    $headerOpnamePending = StokOpnameHeaderPending::where('kd_opname_pending', $id)->firstOrFail();
+                    StokOpnameDetail::where('kd_opname', $id)->delete();
+                    StokOpnameDetailPending::where('kd_opname_pending', $id)->delete();
 
                     $headerOpname->delete();
                     $headerOpnamePending->delete();
@@ -369,15 +459,15 @@ class ApprovalRequestController extends Controller
                     History::create([
                         'user_id' => Auth::id(),
                         'keterangan' => Auth::user()->name . ' Mengubah status request Delete stok opname dengan kode : ' . $id . ' Menjadi Approved',
-                        'tanggal' => Carbon::now() 
+                        'tanggal' => Carbon::now()
                     ]);
                 });
 
-                return redirect('/approval-request')->with('success','Data request berhasil di approved');
+                return redirect('/approval-request')->with('success', 'Data request berhasil di approved');
             } catch (\Exception $e) {
                 return back()
                     ->withInput()
-                    ->with('error',$e->getMessage());
+                    ->with('error', $e->getMessage());
             }
         }
     }

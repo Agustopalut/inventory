@@ -23,7 +23,6 @@ class Barangmasuk extends Model
     ];
 
     protected $casts = [
-        'jumlah' => 'decimal:2',
         'sisa' => 'decimal:2'
     ];
 
