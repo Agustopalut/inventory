@@ -170,6 +170,8 @@ class ApprovalRequestController extends Controller
                         'keterangan' => $keterangan,
                         'tanggal' => Carbon::now()
                     ]);
+
+                    return redirect('/approval-request')->with('success', "Data batal diinput");
                 } catch (\Exception $e) {
                     //throw $th;
                     dd($e->getMessage());
@@ -215,11 +217,10 @@ class ApprovalRequestController extends Controller
 
                         History::create([
                             'user_id' => Auth::id(),
-                            'keterangan' => Auth::user()->name . " Sudah menyetujui untuk menghapus barang keluar dengan kode : " . $id,
+                            'keterangan' => Auth::user()->name . "Menyetujui untuk menghapus barang keluar dengan kode : " . $id,
                             'tanggal' => Carbon::now()
                         ]);
                     });
-
                     return redirect('/approval-request')->with('success', "Data berhasil dihapus");
                 } catch (\Exception $e) {
                     return back()
@@ -229,9 +230,20 @@ class ApprovalRequestController extends Controller
             } else if ($validated['status'] === 'rejected') {
 
                 try {
-                    //code...
-                } catch (\Throwable $th) {
-                    //throw $th;
+                    ApprovalRequest::where('id_request', $request->id_request)
+                        ->where('aksi', $aksi)
+                        ->where('kd_transaksi_pending', $id)->update([
+                            'status' => $validated['status']
+                        ]);
+
+                    History::create([
+                        'user_id' => Auth::id(),
+                        'keterangan' => Auth::user()->name . "Membatalkan untuk menghapus barang keluar dengan kode : " . $id,
+                        'tanggal' => Carbon::now()
+                    ]);
+                    return redirect('/approval-request')->with('success', "Data batal dihapus");
+                } catch (\Exception $e) {
+                    dd($e->getMessage());
                 }
             }
         }
