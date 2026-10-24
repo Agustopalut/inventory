@@ -8,6 +8,7 @@ use App\Models\Barangmasuk;
 use App\Models\History;
 use Illuminate\Http\Request;
 use Illuminate\Support\Carbon;
+use Illuminate\Support\Facades\DB;
 
 class DashboardController extends Controller
 {
@@ -23,12 +24,16 @@ class DashboardController extends Controller
                     ->whereYear('tanggal_keluar',Carbon::now()->year)
                      ->get();
         $barangMaster = Barangmaster::all();
+        $totalpriceInventory = Barangmasuk::sum(
+            DB::raw('sisa * harga_satuan')
+        );
         return view('dashboard', [
             'title' => 'dashboard',
             'data' => $data,
             'barangMasuk' => $barangMasuk,
             'barangKeluar' => $barangKeluar,
-            'barangMaster' => $barangMaster
+            'barangMaster' => $barangMaster,
+            'totalPrice' =>  $totalpriceInventory
         ]);
     }
 }

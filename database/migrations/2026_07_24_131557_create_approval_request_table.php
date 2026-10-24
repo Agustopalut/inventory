@@ -18,7 +18,7 @@ return new class extends Migration
             $table->string('modul');
             $table->date('tanggal_request');
             $table->string('aksi');
-            $table->enum('status',['pending','approved','rejectd']);
+            $table->enum('status',['pending','approved','rejected']);
             $table->timestamps();
         });
     }
