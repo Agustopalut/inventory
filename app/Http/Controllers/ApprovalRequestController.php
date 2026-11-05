@@ -252,6 +252,8 @@ class ApprovalRequestController extends Controller
     public function updateStatus(Request $request, $id_referensi, $aksi)
     {
 
+    // barang masuk
+
         $validate = $request->validate(
             [
                 'status' => 'required'
@@ -342,9 +344,22 @@ class ApprovalRequestController extends Controller
                     ]
                 );
 
+                // menangkap barang yang sudah dikeluar
+                $totalKeluar = BarangkeluarDetail::where('kd_barang_masuk',$id_referensi)->sum('jumlah_yang_diambil');
+                $jumlahBaru = (float) $itemPending->jumlah;
+                $totalKeluar = (float) $totalKeluar;
+
+                // jumlah yang diubah tidak boleh lebih kecil dari barang yang sudah dikeluarkan
+                if($jumlahBaru < $totalKeluar) {
+                    return redirect()->back()->with('error','Jumlah masuk tidak boleh lebih kecil dari jumlah barang yang sudah dikeluarkan.');
+                }
+
+                $sisaBaru = $jumlahBaru - $totalKeluar;
+
                 $barangMasuk->update([
                     'jumlah' => $itemPending->jumlah,
-                    'harga_satuan' => $itemPending->harga_satuan
+                    'harga_satuan' => $itemPending->harga_satuan,
+                    'sisa' => $sisaBaru
                 ]);
 
                 ApprovalRequest::where('kd_transaksi_pending', $id_referensi)
