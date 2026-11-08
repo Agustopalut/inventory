@@ -14,7 +14,7 @@
                 @can('melihat-user')
                     <a class="nav-link" href="/users">
                         <div class="sb-nav-link-icon text-light"><i class="fa-solid fa-user"></i></div>
-                        <span class="text-light">User</span>
+                        <span class="text-light">Pengguna</span>
                     </a>
                 @endcan
 

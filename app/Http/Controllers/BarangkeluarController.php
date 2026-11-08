@@ -159,7 +159,7 @@ class BarangkeluarController extends Controller
 
     public function detail($id)
     {
-        $item = BarangkeluarHeader::where('kd_barang_keluar', $id)->firstOrFail();
+        $item = BarangkeluarHeader::with('users')->where('kd_barang_keluar', $id)->firstOrFail();
         $itemDetail = BarangkeluarDetail::with('barang_masuk.barang_master')->where('kd_barang_keluar', $id)->get();
 
 

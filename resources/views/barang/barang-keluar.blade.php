@@ -17,7 +17,7 @@
     <table class="table mt-2">
         <thead>
             <tr>
-                <th class="text-center" scope="col-md-2">Kd barang keluar</th>
+                <th class="text-center" scope="col-md-2">Kode barang keluar</th>
                 <td class="text-center" scope="col-md-4">Tanggal keluar </td>
                 <td class="text-center" scope="col-md-2">Tujuan</td>
                 <td class="text-center" scope="col-md-2">User</td>

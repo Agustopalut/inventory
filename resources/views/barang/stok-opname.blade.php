@@ -16,7 +16,7 @@
     <table class="table mt-3">
         <thead>
             <tr class="text-center">
-                <th scope="col-md-2">Kd Opname</th>
+                <th scope="col-md-2">Kode Opname</th>
                 <th scope="col-md-4">Tanggal</th>
                 <th scope="col-md-4">User</th>
                 <th scope="col-md-4">Jumlah barang yang dicek</th>

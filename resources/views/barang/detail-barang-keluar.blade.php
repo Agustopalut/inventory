@@ -37,6 +37,19 @@
         </div>
         <div class="row mt-2">
             <div class="col-md-2">
+                <span>User</span>
+            </div>
+            <div class="col-sm-1">
+                <span>:</span>
+            </div>
+            <div class="col-md-4">
+                <input type="text" class="form form-control border-top-0 border-start-0 border-end-0 border border-dark"
+                    readonly value="{{ $itemHeader->users->name }}">
+            </div>
+            <div class="col-md-5"></div>
+        </div>
+        <div class="row mt-2">
+            <div class="col-md-2">
                 <span>Keterangan</span>
             </div>
             <div class="col-sm-1">

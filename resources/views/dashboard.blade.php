@@ -37,7 +37,7 @@
         </div>
         <div class="col-xl-3 col-md-6">
             <div class="card bg-danger text-white mb-4">
-                <div class="card-body">Total price inventory</div>
+                <div class="card-body">Total nilai persediaan</div>
                 <div class="card-footer d-flex align-items-center justify-content-between">
                     <a class="small text-white stretched-link text-decoration-none" href="#">{{ 'Rp ' . number_format($totalPrice, 0, ',', '.') }}</a>
                     <div class="small text-white"><i class="fas fa-angle-right"></i></div>
@@ -50,7 +50,7 @@
             <div class="card mb-4">
                 <div class="card-header">
                     <i class="fas fa-chart-bar me-1"></i>
-                    Data history
+                    Data Aktifitas
                 </div>
                 <div class="card-body w-100">
                     <table class="table w-100" style="table-layout: auto;">

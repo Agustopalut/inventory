@@ -17,7 +17,7 @@
     <table class="table mt-4">
         <thead>
             <tr>
-                <td class="text-center" scope="col-md-2">Kd barang masuk</td>
+                <td class="text-center" scope="col-md-2">Kode barang masuk</td>
                 <td class="text-center" scope="col-md-2">Tanggal masuk</td>
                 <td class="text-center" scope="col-md-4">Nama barang</td>
                 <td class="text-center" scope="col-md-2">Jumlah</td>
@@ -62,6 +62,16 @@
 
 @push('scripts')
     @if (session('success'))
+        <script>
+            Swal.fire({
+                icon: 'success',
+                title: 'Berhasil',
+                text: "{{ session('success') }}",
+                confirmButtonColor: '#3085d6'
+            });
+        </script>
+    @endif
+    @if (session('error'))
         <script>
             Swal.fire({
                 icon: 'success',

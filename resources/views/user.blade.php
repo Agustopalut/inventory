@@ -6,7 +6,7 @@
     @can('input-user')
         <div class="row">
             <div class="col-md-9">
-                <a href="/add-user" class="btn btn-primary">Tambah user</a>
+                <a href="/add-user" class="btn btn-primary">Add User</a>
             </div>
         </div>
     @endcan
@@ -15,7 +15,7 @@
         <thead>
             <tr class="text-center">
                 <th scope="col-md-2">No</th>
-                <th scope="col-md-4">Nama</th>
+                <th scope="col-md-4">Name</th>
                 <th scope="col-md-4">Role</th>
                 @can('update-user')
                     <th scope="col-md-2">Action</th>
