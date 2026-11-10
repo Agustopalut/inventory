@@ -97,7 +97,8 @@ class BarangmasterController extends Controller
         return redirect('/barang-master')->with('success', 'Data berhasil di perbaharui');
     }
 
-    public function destroy($id) {
+    public function destroy($id)
+    {
         $barang = Barangmaster::findOrFail($id);
         $namaBarang = $barang->nama_barang;
         $barang->delete();
@@ -111,16 +112,27 @@ class BarangmasterController extends Controller
         return redirect('/barang-master')->with('success', 'Data berhasil di hapus');
     }
 
-    public function detail($id) {
-        
-    }
-
-    public function cetak() {
+    public function cetak()
+    {
         $data = Barangmaster::with('user')->get();
 
-        return view('barang.cetak-barang-master',[
+        return view('barang.cetak-barang-master', [
             'title' => 'Cetak pdf barang master',
             'data' => $data
         ]);
+    }
+
+    public function search(Request $request)
+    {
+        
+        $keyword = trim($request->query('nama_barang', ''));
+
+        $barang = BarangMaster::query()
+            ->when($keyword !== '', fn($q) => $q->where('nama_barang', 'like', "%{$keyword}%"))
+            ->orderBy('nama_barang')
+            ->limit(20)
+            ->get(['nama_barang', 'satuan', 'stok']);
+
+        return response()->json($barang);
     }
 }

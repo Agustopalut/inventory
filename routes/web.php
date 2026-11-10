@@ -61,9 +61,9 @@ Route::middleware('auth')->group(function () {
     Route::get('/update/barang-master/{id}',[BarangmasterController::class,'update']);
     Route::put('/update/barang-master/{id}',[BarangmasterController::class,'edit']);
     Route::delete('/delete/barang-master/{id}',[BarangmasterController::class,'destroy']);
-    Route::get('/barang-master/{id}',[BarangmasterController::class,'detail']);
     Route::get('/cetak/barang-master',[BarangmasterController::class,'cetak']);
     Route::get('/print/barang-master',[PdfController::class,'barang_master'])->name('print.barang-master');
+    Route::get('/barang-master/search',[BarangmasterController::class,'search'])->name('barang-master.search');
 
 
 

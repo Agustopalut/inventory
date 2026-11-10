@@ -11,7 +11,9 @@
         @endcan
 
         <div class="col-md-3 mt-2">
-            <input type="text" class="form-control-md w-70 form-control left cari-user" placeholder="Cari barang">
+
+            <input type="text" class="form-control-md w-70 form-control left cari-user" id="input_pencarian"
+                name="nama_barang" value="{{ request('nama_barang') }}" placeholder="Cari barang">
         </div>
     </div>
     <table class="table mt-5 w-100">
@@ -24,7 +26,7 @@
                 <th class="text-center" scope="col">Action</th>
             </tr>
         </thead>
-        <tbody>
+        <tbody id="hasil_pencarian">
             @foreach ($data as $barang)
                 <tr>
                     <th class="text-center" scope="row">{{ $loop->iteration }}</th>
@@ -49,6 +51,54 @@
             @endforeach
         </tbody>
     </table>
+
+    {{-- <script>
+    const searchInput = document.getElementById('input_pencarian');
+    const hasilPencarian = document.getElementById('hasil_pencarian');
+
+    let timer;
+
+    searchInput.addEventListener('input', function () {
+
+        clearTimeout(timer);
+
+        timer = setTimeout(() => {
+
+            const kode = this.value;
+
+            fetch(`{{ route('barang-master.search') }}?nama_barang=${encodeURIComponent(kode)}`)
+                .then(response => response.json())
+                .then(data => {
+
+                    hasilPencarian.innerHTML = '';
+
+                    if (data.length === 0) {
+                        hasilPencarian.innerHTML = `
+                            <tr>
+                                <td colspan="4" class="text-center">
+                                    Data tidak ditemukan
+                                </td>
+                            </tr>
+                        `;
+                        return;
+                    }
+
+                    data.forEach(item => {
+                        hasilPencarian.innerHTML += `
+                            <tr>
+                                <td>${item.kd_barang}</td>
+                                <td>${item.nama_barang}</td>
+                                <td>${item.satuan}</td>
+                                <td>${item.stok}</td>
+                            </tr>
+                        `;
+                    });
+
+                });
+
+        }, 300);
+    });
+</script> --}}
 @endsection
 
 @push('scripts')
