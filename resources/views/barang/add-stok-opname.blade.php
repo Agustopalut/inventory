@@ -15,7 +15,13 @@
 
         <div class="mt-4">
             <span>Keterangan</span>
-            <textarea name="keterangan" id="" class="form-control mt-2"></textarea>
+            <textarea name="keterangan" id=""
+                class="form-control mt-2 @error('keterangan')
+                is-invalid
+            @enderror "></textarea>
+            @error('keterangan')
+                <div class="invalid-feedback">{{ $message }}</div>
+            @enderror
         </div>
         <table class="table mt-3">
             <thead>
@@ -32,10 +38,20 @@
                     <input type="hidden" name="id_barang[]" class="form-control" value="{{ $data->id_barang }}" readonly>
                     <tr class="text-center">
                         <th scope="row">{{ $loop->iteration }}</th>
-                        <td><input type="text" value="{{ $data->nama_barang }}" class="form-control form-control-sm" readonly></td>
-                        <td><input type="text" name="stok_sistem[]" value="{{ $data->stok }}" class="form-control form-control-sm" readonly></td>
-                        <td><input type="text" name="stok_fisik[]" class="form-control form-control-sm"></td>
-                        <td><input type="text" value="{{ $data->satuan }}" class="form-control form-control-sm" disabled readonly></td>
+                        <td><input type="text" value="{{ $data->nama_barang }}" class="form-control form-control-sm"
+                                readonly></td>
+                        <td><input type="text" name="stok_sistem[]" value="{{ $data->stok }}"
+                                class="form-control form-control-sm" readonly></td>
+                        <td><input type="text" name="stok_fisik[]"
+                                class="form-control form-control-sm @error('stok_fisik[]')
+                            is-invalid
+                        @enderror ">
+                        </td>
+                        @error('stok_fisik[]')
+                            <div class="invalid-feedback">{{ $message }}</div>
+                        @enderror
+                        <td><input type="text" value="{{ $data->satuan }}" class="form-control form-control-sm" disabled
+                                readonly></td>
                     </tr>
                 @endforeach
             </tbody>

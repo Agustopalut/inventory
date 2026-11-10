@@ -39,7 +39,14 @@ class StokopnameController extends Controller
 
     public function store(Request $request)
     {
-
+        $request->validate([
+            'stok_fisik[]' => 'required|array',
+            'stok_sistem' => 'required',
+            'keterangan' => 'required',
+        ],[
+            'stok_fisik[].required' => 'stok fisik wajib diisi',
+            'keterangan.required' => 'keterangan wajib diisi'
+        ]);
 
         $last = StokOpnameHeaderPending::orderBy('kd_opname_pending', 'desc')->first();
         if ($last) {

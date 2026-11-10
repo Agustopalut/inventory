@@ -117,7 +117,6 @@ function buatAction(id) {
     form.action = `/delete/barang-master/${id}`;
     form.method = 'POST';
     form.className = 'd-inline';
-    form.onsubmit = () => confirm('Yakin hapus data ini?');
 
     const csrf = document.createElement('input');
     csrf.type = 'hidden';
@@ -131,11 +130,11 @@ function buatAction(id) {
 
     const btn = document.createElement('button');
     btn.type = 'submit';
-    btn.className = 'btn btn-sm btn-danger';
+    btn.className = 'btn btn-sm btn-danger btn-delete';
     btn.textContent = 'Hapus';
 
     form.append(csrf, method, btn);
-    td.appendChild(form);
+    td.appendChild(btn);
 
     return td;
 }

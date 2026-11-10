@@ -6,7 +6,7 @@
     <div class="row mt-3">
         @can('input-stok-opname')
             <div class="col-md-9">
-                <a href="/input/stok-opname" class="btn btn-primary">Input data</a>
+                <a href="/input/stok-opname" class="btn btn-primary"> <i class='fa-solid fa-plus'></i> Tambah data</a>
             </div>
         @endcan
         <div class="col-md-3">
