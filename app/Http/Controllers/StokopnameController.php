@@ -20,11 +20,12 @@ class StokopnameController extends Controller
     {
         $data = StokOpnameHeader::with('user')
             ->withCount('stok_opname_detail')
+            ->latest()
             ->get();
         
         return view('barang.stok-opname', [
             'title' => 'stok opname',
-            'data' => $data
+            'stokopname' => $data
         ]);
     }
     public function input()
@@ -39,12 +40,18 @@ class StokopnameController extends Controller
 
     public function store(Request $request)
     {
+        
         $request->validate([
-            'stok_fisik[]' => 'required|array',
+            'stok_fisik' => 'required',
+            'stok_fisik.*' => 'required|array',
             'stok_sistem' => 'required',
+            'stok_sistem.*' => 'required|array',
             'keterangan' => 'required',
         ],[
-            'stok_fisik[].required' => 'stok fisik wajib diisi',
+            'stok_fisik.required' => 'stok fisik wajib diisi',
+            'stok_fisik.*.required' => 'setiap stok fisik wajib diisi',
+            'stok_sistem.required' => 'stok sistem wajib diisi',
+            'stok_sistem.*.required' => 'setiap stok sistem wajib diisi',
             'keterangan.required' => 'keterangan wajib diisi'
         ]);
 
@@ -203,5 +210,18 @@ class StokopnameController extends Controller
         ]);
     }
 
+    public function search(Request $request) {
+        $keyword = $request->keyword;
+
+        $stokopname = StokOpnameHeader::when($keyword !== '', fn ($q) => $q->where('kd_opname','like',"%{$keyword}%"))
+        ->latest()
+        ->get();
+
+        return response()->json([
+            'html' => view('barang.table.table-stok-opname',[
+                'stokopname' => $stokopname
+            ])->render()
+        ]);
+    }
 
 }

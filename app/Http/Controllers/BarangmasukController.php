@@ -17,10 +17,12 @@ class BarangmasukController extends Controller
 {
     public function index()
     {
-        $data = Barangmasuk::with('barang_master')->get();
+        $data = Barangmasuk::with('barang_master')
+        ->latest()
+        ->get();
         return view('barang.barang-masuk', [
             'title' => 'barang masuk',
-            'data' => $data,
+            'barangmasuk' => $data,
         ]);
     }
 
@@ -229,6 +231,28 @@ class BarangmasukController extends Controller
             'filterFirst' => $filterFirst,
             'filterSecond' => $filterSecond,
             'jenisLaporan' => $request->laporan
+        ]);
+    }
+
+    public function search(Request $request) {
+
+    // dd("FILE BERJALAN");
+        $keyword = $request->keyword;
+
+        $barangmasuk = Barangmasuk::with('barang_master')
+            ->where(function ($query) use ($keyword) {
+                $query->where('kd_barang_masuk','like',"%{$keyword}%")
+                    ->orWhereHas('barang_master', function ($q) use ($keyword) {
+                        $q->where('nama_barang','like',"%{$keyword}%");
+                    });
+            })
+            ->latest()
+            ->get();
+
+        return response()->json([
+            'html' => view('barang.table.table-barang-masuk',[
+                'barangmasuk' => $barangmasuk
+            ])->render()
         ]);
     }
 }

@@ -11,7 +11,7 @@
         @endcan
 
         <div class="col-md-3 mt-2">
-            <input type="text" class="form-control-md w-70 form-control left cari-user" placeholder="Cari barang keluar">
+            <input type="text" class="form-control-md w-70 form-control left cari-user" id="searchBarangKeluar" placeholder="Cari barang keluar">
         </div>
     </div>
     <table class="table mt-2">
@@ -24,33 +24,52 @@
                 <td class="text-center" scope="col-md-2">Action</td>
             </tr>
         </thead>
-        <tbody>
-            @foreach ($data as $item)
-                <tr>
-                    <th class="text-center" scope="row">{{ $item->kd_barang_keluar }}</th>
-                    <td class="text-center">{{ \Carbon\Carbon::parse($item->tanggal_keluar)->translatedFormat('d F Y') }}
-                    </td>
-                    <td class="text-center">{{ $item->tujuan }}</td>
-                    <td class="text-center">{{ $item->users->name }}</td>
-                    <td class="text-center">
-                        <a href="/barang-keluar/{{ $item->kd_barang_keluar }}" class="btn btn-success">Details</a>
-                        @can('delete-barang-keluar')
-                            <form action="/delete/barang-keluar/{{ $item->kd_barang_keluar }}" class="d-inline" method="GET">
-                                @csrf
-                                <button type="submit" class="btn btn-delete btn-danger">Delete</button>
-                            </form>
-                        @endcan
-
-
-                    </td>
-                </tr>
-            @endforeach
-
+        <tbody id="tableBarangKeluar">
+            @include('barang.table.table-barang-keluar')
         </tbody>
     </table>
 @endsection
 
 @push('scripts')
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+
+            const searchInput = document.getElementById('searchBarangKeluar');
+            const tableBody = document.getElementById('tableBarangKeluar');
+
+            let timeout = null;
+
+            searchInput.addEventListener('input', function() {
+
+                clearTimeout(timeout);
+
+                timeout = setTimeout(() => {
+
+                    const keyword = searchInput.value;
+
+                    fetch(
+                            `{{ route('barangkeluar.search') }}?keyword=${encodeURIComponent(keyword)}`
+                        )
+                        .then(response => {
+                            if (!response.ok) {
+                                throw new Error('Terjadi kesalahan saat mencari data.');
+                            }
+
+                            return response.json();
+                        })
+                        .then(data => {
+                            tableBody.innerHTML = data.html;
+                        })
+                        .catch(error => {
+                            console.error("terjadi kesalahan : ", error.message);
+                        });
+
+                }, 300);
+
+            });
+
+        });
+    </script>
     @if (session('success'))
         <script>
             Swal.fire({

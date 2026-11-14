@@ -11,7 +11,8 @@
         @endcan
 
         <div class="col-md-3">
-            <input type="text" class="form-control-md w-70 form-control left cari-user" placeholder="Cari barang masuk">
+            <input type="text" id="searchBarangMasuk" class="form-control-md w-70 form-control left cari-user"
+                placeholder="Cari barang masuk">
         </div>
     </div>
     <table class="table mt-4">
@@ -27,40 +28,52 @@
                 <td class="text-center" scope="col-md-2">Actions</td>
             </tr>
         </thead>
-        <tbody>
-
-            @foreach ($data as $item)
-                <tr>
-                    <th class="text-center" scope="row">{{ $item->kd_barang_masuk }}</th>
-                    <td class="text-center" scope="row">
-                        {{ \Carbon\Carbon::parse($item->tanggal_masuk)->translatedFormat('d F Y') }}</td>
-                    <td class="text-center">{{ $item->barang_master->nama_barang }}</td>
-                    <td class="text-center">{{ $item->jumlah }}</td>
-                    <td class="text-center">{{ $item->sisa }}</td>
-                    <td class="text-center">Rp{{ number_format($item->harga_satuan, 0, ',', '.') }}</td>
-                    <td class="text-center">Rp{{ number_format($item->harga_satuan * $item->jumlah, 0, ',', '.') }}</td>
-                    <td class="text-center">
-                        <a href="/details/barang-masuk/{{ $item->kd_barang_masuk }}" class="btn btn-primary btn-sm">Details</a>
-                        @can('update-barang-masuk')
-                            <a href="/update/barang-masuk/{{ $item->kd_barang_masuk }}" class="btn btn-success btn-sm">Update</a>
-                        @endcan
-
-                        @can('delete-barang-masuk')
-                            <form action="/delete/barang-masuk/{{ $item->kd_barang_masuk }}" class="d-inline" method="GET">
-                                @csrf
-                                <button type="submit" class="btn btn-delete btn-danger btn-sm">Delete</button>
-                            </form>
-                        @endcan
-
-                    </td>
-                </tr>
-            @endforeach
-
+        <tbody id="tableBarangMasuk">
+            @include('barang.table.table-barang-masuk')
         </tbody>
     </table>
 @endsection
 
 @push('scripts')
+
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+
+            const searchInput = document.getElementById('searchBarangMasuk');
+            const tableBody = document.getElementById('tableBarangMasuk');
+
+            let timeout = null;
+
+            searchInput.addEventListener('input', function() {
+
+                clearTimeout(timeout);
+
+                timeout = setTimeout(() => {
+
+                    const keyword = searchInput.value;
+
+                    fetch(
+                            `{{ route('barangmasuk.search') }}?keyword=${encodeURIComponent(keyword)}`)
+                        .then(response => {
+                            if (!response.ok) {
+                                throw new Error('Terjadi kesalahan saat mencari data.');
+                            }
+
+                            return response.json();
+                        })
+                        .then(data => {
+                            tableBody.innerHTML = data.html;
+                        })
+                        .catch(error => {
+                            console.error("terjadi kesalahan : ",error);
+                        });
+
+                }, 300);
+
+            });
+
+        });
+    </script>
     @if (session('success'))
         <script>
             Swal.fire({

@@ -12,8 +12,8 @@
 
         <div class="col-md-3 mt-2">
 
-            <input type="text" class="form-control-md w-70 form-control left cari-user" id="input_pencarian"
-                name="nama_barang" value="{{ request('nama_barang') }}" placeholder="Cari barang">
+            <input type="text" class="form-control-md w-70 form-control left cari-user" id="searchBarangMaster"
+                name="nama_barang"" placeholder="Cari barang">
         </div>
     </div>
     <table class="table mt-5 w-100">
@@ -26,34 +26,54 @@
                 <th class="text-center" scope="col">Action</th>
             </tr>
         </thead>
-        <tbody id="hasil_pencarian">
-            @foreach ($data as $barang)
-                <tr>
-                    <th class="text-center" scope="row">{{ $loop->iteration }}</th>
-                    <td class="text-center">{{ $barang->nama_barang }}</td>
-                    <td class="text-center">{{ $barang->satuan }}</td>
-                    <td class="text-center">{{ $barang->stok }}</td>
-                    <td class="text-center">
-                        @can('update-barang-master')
-                            <a href="/update/barang-master/{{ $barang->id_barang }}" class="btn btn-sm btn-primary">Update</a>
-                        @endcan
-
-                        <a href="/details-barang-master/{{ $barang->id_barang }}" class="btn btn-sm btn-success">Details</a>
-                        @can('delete-barang-master')
-                            <form action="/delete/barang-master/{{ $barang->id_barang }}" method="post" class="d-inline">
-                                @csrf
-                                @method('DELETE')
-                                <button type="submit" class="btn btn-sm btn-danger btn-delete">Delete</button>
-                            </form>
-                        @endcan
-                    </td>
-                </tr>
-            @endforeach
+        <tbody id="tableBarangMaster">
+            @include('barang.table.table-barang-master')
         </tbody>
     </table>
 @endsection
 
 @push('scripts')
+
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+
+            const searchInput = document.getElementById('searchBarangMaster');
+            const tableBody = document.getElementById('tableBarangMaster');
+
+            let timeout = null;
+
+            searchInput.addEventListener('input', function() {
+
+                clearTimeout(timeout);
+
+                timeout = setTimeout(() => {
+
+                    const keyword = searchInput.value;
+
+                    fetch(
+                            `{{ route('barangmaster.search') }}?keyword=${encodeURIComponent(keyword)}`
+                            )
+                        .then(response => {
+                            if (!response.ok) {
+                                throw new Error('Terjadi kesalahan saat mencari data.');
+                            }
+
+                            return response.json();
+                        })
+                        .then(data => {
+                            tableBody.innerHTML = data.html;
+                        })
+                        .catch(error => {
+                            console.error("terjadi kesalahan : ", error);
+                        });
+
+                }, 300);
+
+            });
+
+        });
+
+    </script>
     @if (session('success'))
         <script>
             Swal.fire({

@@ -21,10 +21,12 @@ class BarangkeluarController extends Controller
 {
     public function index()
     {
-        $data = BarangkeluarHeader::with('users')->get();
+        $data = BarangkeluarHeader::with('users')
+        ->latest()
+        ->get();
         return view('barang.barang-keluar', [
             'title' => 'barang keluar',
-            'data' => $data,
+            'barangkeluar' => $data,
         ]);
     }
 
@@ -258,6 +260,20 @@ class BarangkeluarController extends Controller
             'filterFirst' => $filterFirst,
             'filterSecond' => $filterSecond,
             'jenisLaporan' => $request->laporan
+        ]);
+    }
+
+    public function search(Request $request) {
+        $keyword = $request->keyword;
+
+        $barangkeluar = BarangkeluarHeader::when($keyword !== '', fn ($q) => $q->where('kd_barang_keluar','like',"%{$keyword}%"))
+        ->latest()
+        ->get();
+
+        return response()->json([
+            'html' => view('barang.table.table-barang-keluar',[
+                'barangkeluar' => $barangkeluar
+            ])->render()
         ]);
     }
 }

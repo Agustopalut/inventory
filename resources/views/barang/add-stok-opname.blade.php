@@ -22,6 +22,9 @@
             @error('keterangan')
                 <div class="invalid-feedback">{{ $message }}</div>
             @enderror
+            @error('stok_fisik[]')
+                <div class="invalid-feedback">{{ $message }}</div>
+            @enderror
         </div>
         <table class="table mt-3">
             <thead>
@@ -47,9 +50,7 @@
                             is-invalid
                         @enderror ">
                         </td>
-                        @error('stok_fisik[]')
-                            <div class="invalid-feedback">{{ $message }}</div>
-                        @enderror
+
                         <td><input type="text" value="{{ $data->satuan }}" class="form-control form-control-sm" disabled
                                 readonly></td>
                     </tr>

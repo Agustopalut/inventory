@@ -5,4 +5,3 @@ import 'bootstrap';
 import './delete';
 import './barang-keluar';
 import './cetak-barang-masuk';
-import './search';

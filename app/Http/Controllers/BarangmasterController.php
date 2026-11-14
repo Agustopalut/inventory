@@ -16,7 +16,7 @@ class BarangmasterController extends Controller
         $barang = Barangmaster::all();
         return view('barang.barang-master', [
             'title' => 'barang master',
-            'data' => $barang
+            'barangmaster' => $barang
         ]);
     }
 
@@ -125,14 +125,16 @@ class BarangmasterController extends Controller
     public function search(Request $request)
     {
         
-        $keyword = trim($request->query('nama_barang', ''));
+        $keyword = $request->keyword;
 
-        $barang = BarangMaster::query()
-            ->when($keyword !== '', fn($q) => $q->where('nama_barang', 'like', "%{$keyword}%"))
-            ->orderBy('nama_barang')
-            ->limit(20)
-            ->get(['nama_barang', 'satuan', 'stok']);
+        $barangmaster = Barangmaster::when($keyword !== '', fn ($q) => $q->where('nama_barang','like',"%{$keyword}%"))
+        ->oldest()
+        ->get();
 
-        return response()->json($barang);
+        return response()->json([
+            'html' => view('barang.table.table-barang-master',[
+                'barangmaster' => $barangmaster
+            ])->render()
+        ]);
     }
 }

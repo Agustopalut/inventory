@@ -10,7 +10,7 @@
             </div>
         @endcan
         <div class="col-md-3">
-            <input type="text" class="form-control-md w-70 form-control left cari-user" placeholder="Cari stok opname">
+            <input type="text" class="form-control-md w-70 form-control left cari-user" id="searchStokOpname" placeholder="Cari stok opname">
         </div>
     </div>
     <table class="table mt-3">
@@ -23,33 +23,51 @@
                 <th scope="col-md-2">Action</th>
             </tr>
         </thead>
-        <tbody>
-
-            @foreach ($data as $item)
-                <tr class="text-center">
-                    <td>{{ $item->kd_opname }}</td>
-                    <td>{{ \Carbon\Carbon::parse($item->tangga_opname)->translatedFormat('d F Y')  }}</td>
-                    <td>{{ $item->user->name }}</td>
-                    <td>{{ $item->stok_opname_detail_count }}</td>
-                    <td>
-                        <a href="/detail/stok-opname/{{ $item->kd_opname }}" class="btn btn-primary">Details</a>
-
-                        @can('delete-stok-opname')
-                            <form action="/delete/stok-opname/{{ $item->kd_opname }}" class="d-inline" method="POST">
-                                @csrf
-                                @method('POST')
-                                <button type="submit" class="btn btn-danger btn-delete">Delete</button>
-                            </form>
-                        @endcan
-
-                    </td>
-                </tr>
-            @endforeach
-
+        <tbody id="tableStokOpname">
+            @include('barang.table.table-stok-opname')
         </tbody>
     </table>
 @endsection
 @push('scripts')
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+
+            const searchInput = document.getElementById('searchStokOpname');
+            const tableBody = document.getElementById('tableStokOpname');
+
+            let timeout = null;
+
+            searchInput.addEventListener('input', function() {
+
+                clearTimeout(timeout);
+
+                timeout = setTimeout(() => {
+
+                    const keyword = searchInput.value;
+
+                    fetch(
+                            `{{ route('stokopname.search') }}?keyword=${encodeURIComponent(keyword)}`
+                            )
+                        .then(response => {
+                            if (!response.ok) {
+                                throw new Error('Terjadi kesalahan saat mencari data.');
+                            }
+
+                            return response.json();
+                        })
+                        .then(data => {
+                            tableBody.innerHTML = data.html;
+                        })
+                        .catch(error => {
+                            console.error("terjadi kesalahan : ", error);
+                        });
+
+                }, 300);
+
+            });
+
+        });
+    </script>
     @if (session('success'))
         <script>
             Swal.fire({
