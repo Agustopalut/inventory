@@ -151,7 +151,7 @@ class BarangmasukController extends Controller
             'user_id' => Auth::id(),
             'modul' => 'barang masuk',
             'tanggal_request' => Carbon::now(),
-            'aksi' => 'update'
+            'aksi' => 'Update'
         ]);
 
         History::create([

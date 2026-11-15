@@ -252,7 +252,7 @@ class ApprovalRequestController extends Controller
     public function updateStatus(Request $request, $id_referensi, $aksi)
     {
 
-    // barang masuk
+        // barang masuk
 
         $validate = $request->validate(
             [
@@ -328,7 +328,7 @@ class ApprovalRequestController extends Controller
                     dd($e->getMessage());
                 }
             }
-        } else if ($aksi === 'update') {
+        } else if ($aksi === 'Update') {
 
             if ($validate['status'] === 'approved') {
                 // approved update
@@ -345,13 +345,13 @@ class ApprovalRequestController extends Controller
                 );
 
                 // menangkap barang yang sudah dikeluar
-                $totalKeluar = BarangkeluarDetail::where('kd_barang_masuk',$id_referensi)->sum('jumlah_yang_diambil');
+                $totalKeluar = BarangkeluarDetail::where('kd_barang_masuk', $id_referensi)->sum('jumlah_yang_diambil');
                 $jumlahBaru = (float) $itemPending->jumlah;
                 $totalKeluar = (float) $totalKeluar;
 
                 // jumlah yang diubah tidak boleh lebih kecil dari barang yang sudah dikeluarkan
-                if($jumlahBaru < $totalKeluar) {
-                    return redirect()->back()->with('error','Jumlah masuk tidak boleh lebih kecil dari jumlah barang yang sudah dikeluarkan.');
+                if ($jumlahBaru < $totalKeluar) {
+                    return redirect()->back()->with('error', 'Jumlah masuk tidak boleh lebih kecil dari jumlah barang yang sudah dikeluarkan.');
                 }
 
                 $sisaBaru = $jumlahBaru - $totalKeluar;
@@ -456,78 +456,123 @@ class ApprovalRequestController extends Controller
         ]);
 
         if ($aksi === 'Input') {
-            try {
-                DB::transaction(function () use ($request, $id, $aksi, $validated) {
-                    $getApproval = ApprovalRequest::where('id_request', $request->id_request)
-                        ->where('kd_transaksi_pending', $id)
-                        ->where('aksi', $aksi)
-                        ->firstOrFail();
-                    $getApproval->status = $validated['status'];
-                    $getApproval->save();
 
-                    $opnameHeaderPending = StokOpnameHeaderPending::where('kd_opname_pending', $id)->firstOrCreate();
-                    StokOpnameHeader::create([
-                        'kd_opname' => $opnameHeaderPending->kd_opname_pending,
-                        'tangga_opname' => $opnameHeaderPending->tangga_opname,
-                        'keterangan' => $opnameHeaderPending->keterangan,
-                        'user_id' => $opnameHeaderPending->user_id
-                    ]);
-                    $opnameDetailPending = StokOpnameDetailPending::where('kd_opname_pending', $id)->get();
+            if ($validated['status'] === 'approved') {
+                // stok opname approved
+                try {
+                    DB::transaction(function () use ($request, $id, $aksi, $validated) {
+                        $getApproval = ApprovalRequest::where('id_request', $request->id_request)
+                            ->where('kd_transaksi_pending', $id)
+                            ->where('aksi', $aksi)
+                            ->firstOrFail();
+                        $getApproval->status = $validated['status'];
+                        $getApproval->save();
 
-                    foreach ($opnameDetailPending as $item) {
-                        StokOpnameDetail::create([
-                            'id_barang' => $item->id_barang,
-                            'stok_fisik' => $item->stok_fisik,
-                            'stok_sistem' => $item->stok_sistem,
-                            'kd_opname' => $item->kd_opname_pending
+                        $opnameHeaderPending = StokOpnameHeaderPending::where('kd_opname_pending', $id)->firstOrCreate();
+                        StokOpnameHeader::create([
+                            'kd_opname' => $opnameHeaderPending->kd_opname_pending,
+                            'tangga_opname' => $opnameHeaderPending->tangga_opname,
+                            'keterangan' => $opnameHeaderPending->keterangan,
+                            'user_id' => $opnameHeaderPending->user_id
                         ]);
-                    }
+                        $opnameDetailPending = StokOpnameDetailPending::where('kd_opname_pending', $id)->get();
+
+                        foreach ($opnameDetailPending as $item) {
+                            StokOpnameDetail::create([
+                                'id_barang' => $item->id_barang,
+                                'stok_fisik' => $item->stok_fisik,
+                                'stok_sistem' => $item->stok_sistem,
+                                'kd_opname' => $item->kd_opname_pending
+                            ]);
+                        }
+
+                        History::create([
+                            'user_id' => Auth::id(),
+                            'keterangan' => Auth::user()->name . ' Mengubah status request input stok opname dengan kode : ' . $opnameHeaderPending->kd_opname_pending . ' Menjadi ' . $validated['status'],
+                            'tanggal' => Carbon::now()
+                        ]);
+                    });
+
+                    return redirect('/approval-request')->with('success', 'Request berhasil di approved');
+                } catch (\Exception $e) {
+                    return back()
+                        ->wihtInput()
+                        ->with('error', $e->getMessage());
+                }
+            } else if ($validated['status'] === 'rejected') {
+
+                try {
+
+                    StokOpnameDetailPending::where('kd_opname_pending', $id)->delete();
+                    StokOpnameHeaderPending::where('kd_opname_pending', $id)->delete();
+
+                    ApprovalRequest::where('id_request', $request->id_request)
+                        ->where('aksi', $aksi)
+                        ->where('kd_transaksi_pending', $id)
+                        ->update([
+                            'status' => $validated['status']
+                        ]);
 
                     History::create([
                         'user_id' => Auth::id(),
-                        'keterangan' => Auth::user()->name . ' Mengubah status request stok opname dengan kode : ' . $opnameHeaderPending->kd_opname_pending . ' Menjadi ' . $validated['status'],
+                        'keterangan' => Auth::user()->name . ' Mengubah status request input stok opname dengan kode : ' . $id . ' Menjadi ' . $validated['status'],
                         'tanggal' => Carbon::now()
                     ]);
-                });
 
-                return redirect('/approval-request')->with('success', 'Request berhasil di approved');
-            } catch (\Exception $e) {
-                return back()
-                    ->wihtInput()
-                    ->with('error', $e->getMessage());
+                    return redirect('/approval-request')->with('success', "Request berhasil di reject");
+                } catch (\Exception $e) {
+                    return back()
+                        ->wihtInput()
+                        ->with('error', $e->getMessage());
+                }
             }
         } else {
+            // delete stok opname
+            if ($validated['status'] === 'approved') {
+                try {
+                    DB::transaction(function () use ($request, $id, $aksi, $validated) {
 
-            try {
-                DB::transaction(function () use ($request, $id, $aksi, $validated) {
+                        $getApproval = ApprovalRequest::where('kd_transaksi_pending', $id)
+                            ->where('id_request', $request->id_request)
+                            ->where('aksi', $aksi)
+                            ->firstOrFail();
+                        $getApproval->status = $validated['status'];
+                        $getApproval->save();
 
-                    $getApproval = ApprovalRequest::where('kd_transaksi_pending', $id)
-                        ->where('id_request', $request->id_request)
-                        ->where('aksi', $aksi)
-                        ->firstOrFail();
-                    $getApproval->status = $validated['status'];
-                    $getApproval->save();
+                        $headerOpname = StokOpnameHeader::where('kd_opname', $id)->firstOrFail();
+                        $headerOpnamePending = StokOpnameHeaderPending::where('kd_opname_pending', $id)->firstOrFail();
+                        StokOpnameDetail::where('kd_opname', $id)->delete();
+                        StokOpnameDetailPending::where('kd_opname_pending', $id)->delete();
 
-                    $headerOpname = StokOpnameHeader::where('kd_opname', $id)->firstOrFail();
-                    $headerOpnamePending = StokOpnameHeaderPending::where('kd_opname_pending', $id)->firstOrFail();
-                    StokOpnameDetail::where('kd_opname', $id)->delete();
-                    StokOpnameDetailPending::where('kd_opname_pending', $id)->delete();
+                        $headerOpname->delete();
+                        $headerOpnamePending->delete();
 
-                    $headerOpname->delete();
-                    $headerOpnamePending->delete();
+                        History::create([
+                            'user_id' => Auth::id(),
+                            'keterangan' => Auth::user()->name . ' Mengubah status request Delete stok opname dengan kode : ' . $id . ' Menjadi Approved',
+                            'tanggal' => Carbon::now()
+                        ]);
+                    });
 
-                    History::create([
-                        'user_id' => Auth::id(),
-                        'keterangan' => Auth::user()->name . ' Mengubah status request Delete stok opname dengan kode : ' . $id . ' Menjadi Approved',
-                        'tanggal' => Carbon::now()
+                    return redirect('/approval-request')->with('success', 'Data request berhasil di approved');
+                } catch (\Exception $e) {
+                    return back()
+                        ->withInput()
+                        ->with('error', $e->getMessage());
+                }
+            } else if ($validated['status'] === 'rejected') {
+
+                ApprovalRequest::where('id_request', $request->id_request)
+                    ->where('aksi', $aksi)
+                    ->where('kd_transaksi_pending', $id)
+                    ->update([
+                        'status' => $validated['status']
                     ]);
-                });
-
-                return redirect('/approval-request')->with('success', 'Data request berhasil di approved');
-            } catch (\Exception $e) {
-                return back()
-                    ->withInput()
-                    ->with('error', $e->getMessage());
+                History::create([
+                    'user_id' => Auth::id(),
+                    'keterangan' => Auth::user()->name . ' Mengubah status request Delete stok opname dengan kode : ' . $id . ' Menjadi ' . $validated['status'],
+                    'tanggal' => Carbon::now()
+                ]);
             }
         }
     }
