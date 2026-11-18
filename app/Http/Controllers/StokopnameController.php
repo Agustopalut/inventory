@@ -41,11 +41,16 @@ class StokopnameController extends Controller
     public function store(Request $request)
     {
         
-        $request->validate([
-            'stok_fisik' => 'required',
-            'stok_fisik.*' => 'required|array',
-            'stok_sistem' => 'required',
-            'stok_sistem.*' => 'required|array',
+        
+        
+        try {
+            $request->validate([
+            'id_barang' => 'required|array',
+            'id_barang.*' => 'required',
+            'stok_fisik' => 'required|array',
+            'stok_fisik.*' => 'required',
+            'stok_sistem' => 'required|array',
+            'stok_sistem.*' => 'required',
             'keterangan' => 'required',
         ],[
             'stok_fisik.required' => 'stok fisik wajib diisi',
@@ -62,15 +67,13 @@ class StokopnameController extends Controller
             $nomor = 1;
         }
         $kode = 'SO' . str_pad($nomor, 3, '0', STR_PAD_LEFT);
-        
-        try {
            DB::transaction(function () use ($kode, $request) {
                 ApprovalRequest::create([
                     'kd_transaksi_pending' => $kode,
                     'user_id' => Auth::id(),
                     'modul' => 'Stok opname',
                     'tanggal_request' => Carbon::now(),
-                    'aksi' => 'Input'
+                    'aksi' => 'Menambah'
                 ]);
 
                 StokOpnameHeaderPending::create([
@@ -96,7 +99,7 @@ class StokopnameController extends Controller
                 ]);
             });
 
-            return redirect('/stok-opname')->with('pending','Data berhasi diinput. Sedang menunggu persetujuan manager!');
+            return redirect('/stok-opname')->with('pending','Permintaan menambah data stok opname berhasil dikirim, sedang menunggu persetujuan manager');
         } catch (\Exception $e) {
 
             return back()
@@ -127,7 +130,7 @@ class StokopnameController extends Controller
                     'user_id' => $opnameHeader->user_id,
                     'modul' => 'stok opname',
                     'tanggal_request' => Carbon::now(),
-                    'aksi' => 'Delete'
+                    'aksi' => 'Menghapus'
                 ]);
 
                 History::create([
@@ -137,7 +140,7 @@ class StokopnameController extends Controller
                 ]);
             });
 
-            return redirect('/stok-opname')->with('pending','Sedang menunggu persetujuan manager untuk menghapus data');
+            return redirect('/stok-opname')->with('pending','Permintaan menghapus data stok opname berhasil dikirim, sedang menunggu persetujuan manager');
 
         } catch (\Exception $e) {
             return back()

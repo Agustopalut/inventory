@@ -1,7 +1,7 @@
 @extends('layout.home')
 
 @section('content')
-    <h1 class="mt-4">Update Barang masuk</h1>
+    <h1 class="mt-4">Mengubah Barang masuk</h1>
 
     <div class="card mt-4">
         <form action="/update/barang-masuk/{{ $barang->kd_barang_masuk }}" method="post">

@@ -20,8 +20,8 @@
                 <th class="text-center" scope="col-md-2">Kode barang keluar</th>
                 <td class="text-center" scope="col-md-4">Tanggal keluar </td>
                 <td class="text-center" scope="col-md-2">Tujuan</td>
-                <td class="text-center" scope="col-md-2">User</td>
-                <td class="text-center" scope="col-md-2">Action</td>
+                <td class="text-center" scope="col-md-2">Diinput Oleh</td>
+                <td class="text-center" scope="col-md-2">Aksi</td>
             </tr>
         </thead>
         <tbody id="tableBarangKeluar">

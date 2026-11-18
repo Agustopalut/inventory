@@ -1,7 +1,7 @@
 @extends('layout.home')
 
 @section('content')
-    <h1 class="mt-4">Barang master</h1>
+    <h1 class="mt-4">Barang Utama</h1>
 
     <div class="row">
         @can('input-barang-master')
@@ -23,7 +23,7 @@
                 <th class="text-center" scope="col">Nama</th>
                 <th class="text-center" scope="col">Satuan</th>
                 <th class="text-center" scope="col">Stok</th>
-                <th class="text-center" scope="col">Action</th>
+                <th class="text-center" scope="col">Aksi</th>
             </tr>
         </thead>
         <tbody id="tableBarangMaster">

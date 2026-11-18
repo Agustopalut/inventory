@@ -18,7 +18,7 @@ return new class extends Migration
             $table->string('modul');
             $table->date('tanggal_request');
             $table->string('aksi');
-            $table->enum('status',['pending','approved','rejected']);
+            $table->enum('status',['Menunggu Persetujuan','Disetujui','Ditolak'])->default('Menunggu Persetujuan');
             $table->timestamps();
         });
     }

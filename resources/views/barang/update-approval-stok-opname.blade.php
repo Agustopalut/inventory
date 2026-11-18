@@ -6,16 +6,16 @@
         @method('PATCH')
         <div class="row align-middle">
             <div class="col-md-6">
-                <h1 class="mt-4">Approval Stok Opname : {{ $aksi }}</h1>
+                <h1 class="mt-4">Permintaan Persetujuan Stok Opname : {{ $aksi }}</h1>
             </div>
             <div class="col-md-6 text-end mt-4">
-                <button type="submit" class="btn btn-primary" name="submit">Update</button>
+                <button type="submit" class="btn btn-primary" name="submit">Simpan</button>
             </div>
         </div>
         <input type="hidden" name="id_request" value="{{ $id_request }}">
         <div class="row mt-2">
             <div class="col-md-2">
-                <span>ID Request</span>
+                <span>ID Permintaan</span>
             </div>
             <div class="col-sm-1">
                 <span>:</span>
@@ -65,9 +65,9 @@
                             is-invalid
                         @enderror"
                     id="approval"">
-                    <option value="" selected>Pending</option>
-                    <option value="approved">Approve</option>
-                    <option value="rejected">Reject</option>
+                    <option value="" selected>Menunggu Persetujuan</option>
+                    <option value="Disetujui">Disetujui</option>
+                    <option value="Ditolak">Ditolak</option>
                 </select>
                 @error('status')
                     <div class="invalid-feedback">{{ $message }}</div>

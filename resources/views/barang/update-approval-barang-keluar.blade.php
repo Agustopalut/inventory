@@ -6,7 +6,7 @@
         @method('PATCH')
         <div class="row align-middle">
             <div class="col-md-6">
-                <h1 class="mt-4">Approval Barang Keluar : {{ $aksi }}</h1>
+                <h1 class="mt-4">Perminta Perstujuan Barang Keluar : {{ $aksi }}</h1>
             </div>
             <div class="col-md-6 text-end mt-4">
                 <button type="submit" class="btn btn-primary" name="submit">Update</button>
@@ -15,7 +15,7 @@
         <input type="hidden" name="id_request" value="{{ $id_request }}">
         <div class="row mt-2">
             <div class="col-md-2">
-                <span>ID Request</span>
+                <span>ID Permintaan</span>
             </div>
             <div class="col-sm-1">
                 <span>:</span>
@@ -28,7 +28,7 @@
         </div>
         <div class="row mt-2">
             <div class="col-md-2">
-                <span>Kd Transaksi</span>
+                <span>Kode Transaksi</span>
             </div>
             <div class="col-sm-1">
                 <span>:</span>
@@ -65,9 +65,9 @@
                             is-invalid
                         @enderror"
                     id="approval"">
-                    <option value="" selected>Pending</option>
-                    <option value="approved">Approve</option>
-                    <option value="rejected">Reject</option>
+                    <option value="" selected>Menunggu Persutujuan</option>
+                    <option value="Disetujui">Diterima</option>
+                    <option value="Ditolak">Ditolak</option>
                 </select>
                 @error('status')
                     <div class="invalid-feedback">{{ $message }}</div>
@@ -113,7 +113,8 @@
                             <th class="text-center">{{ $loop->iteration }}</th>
                             <td class="text-center"><input type="text" name="kd_barang_masuk[]" value="{{ $item->kd_barang_masuk }}" class="form-control-sm border-0 text-center" readonly></td>
                             <td class="text-center"><input type="text" class="form-control-sm text-center border-0"  value="{{ $item->barang_masuk->barang_master->nama_barang }}" readonly></td>
-                            <td class="text-center"><input type="text" class="form-control-sm text-center border-0" name="jumlah_yang_diambil[]" readonly value="{{ $item->jumlah_yang_diambil }}"></td>
+                            <td class="text-center"><input type="text" class="form-control-sm text-center border-0" name="jumlah_yang_diambil[]" readonly value="{{ 
+                            $item->barang_masuk->barang_master->satuan === 'Kg' ? rtrim(rtrim(number_format($item->jumlah_yang_diambil, 2, '.', ''), '0'), '.') : (int)$item->jumlah_yang_diambil }}"></td>
                             <td class="text-center">{{ $item->barang_masuk->barang_master->satuan }}</td>
                             <td class="text-center">Rp{{ number_format($item->barang_masuk->harga_satuan,0,',','.') }}</td>
                             <td class="text-center">Rp{{ number_format($item->barang_masuk->harga_satuan * $item->jumlah_yang_diambil,0,',','.')}}</td>

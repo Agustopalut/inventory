@@ -26,7 +26,8 @@ class ApprovalRequestController extends Controller
     public function index()
     {
 
-        $data = ApprovalRequest::all();
+        $data = ApprovalRequest::latest()
+        ->paginate(10);
         return view('barang.approval-request', [
             'title' => 'Approval Request',
             'data' => $data
@@ -90,14 +91,14 @@ class ApprovalRequestController extends Controller
 
     public function updateStatusBarangout(Request $request, $id, $aksi)
     {
-
+        
         $validated = $request->validate([
             'status' => 'required'
         ], [
             'status.required' => 'status wajib dipilih'
         ]);
-        if ($aksi === 'Input') {
-            if ($validated['status'] === 'approved') {
+        if ($aksi === 'Menambah') {
+            if ($validated['status'] === 'Disetujui') {
 
                 DB::transaction(function () use ($id, $request, $aksi, $validated) {
                     $barangKeluarHeaderPending = BarangkeluarHeaderPending::where('kd_barang_keluar_pending', $id)->firstOrFail();
@@ -131,7 +132,7 @@ class ApprovalRequestController extends Controller
                         ]);
                         $barang->decrement('stok', $jumlah);
                     }
-                    $keterangan = Auth::user()->name . " Mengubah status request barang keluar dengan kd : " . $id . " menjadi approved";
+                    $keterangan = Auth::user()->name . " Menyetujui  permintaan barang keluar dengan kode : " . $id;
                     // untuk history
                     History::create([
                         'user_id' => Auth::id(),
@@ -142,13 +143,13 @@ class ApprovalRequestController extends Controller
                     $approval = ApprovalRequest::where('id_request', $request->id_request)
                         ->where('aksi', $aksi)
                         ->where('kd_transaksi_pending', $id)->firstOrFail();
-                    $approval->status = 'approved';
+                    $approval->status = 'Disetujui';
                     $approval->save();
                 });
 
 
-                return redirect('/approval-request')->with('success', 'status berhasil di approved');
-            } else if ($validated['status'] === 'rejected') {
+                return redirect('/approval-request')->with('success', 'Data berhasil tersimpan');
+            } else if ($validated['status'] === 'Ditolak') {
 
                 try {
 
@@ -163,7 +164,7 @@ class ApprovalRequestController extends Controller
                             'status' => $validated['status']
                         ]);
 
-                    $keterangan = Auth::user()->name . " Mengubah status request input barang keluar dengan kd : " . $id . " menjadi rejeceted";
+                    $keterangan = Auth::user()->name . " Menolak permintaan menambah barang keluar dengan kode : " . $id;
                     // untuk history
                     History::create([
                         'user_id' => Auth::id(),
@@ -171,7 +172,7 @@ class ApprovalRequestController extends Controller
                         'tanggal' => Carbon::now()
                     ]);
 
-                    return redirect('/approval-request')->with('success', "Data batal diinput");
+                    return redirect('/approval-request')->with('success', "Permintaan menambah barang keluar Ditolak");
                 } catch (\Exception $e) {
                     //throw $th;
                     dd($e->getMessage());
@@ -179,7 +180,7 @@ class ApprovalRequestController extends Controller
             }
         } else {
 
-            if ($validated['status'] === 'approved') {
+            if ($validated['status'] === 'Disetujui') {
 
                 try {
                     DB::transaction(function () use ($request, $id, $aksi, $validated) {
@@ -217,7 +218,7 @@ class ApprovalRequestController extends Controller
 
                         History::create([
                             'user_id' => Auth::id(),
-                            'keterangan' => Auth::user()->name . "Menyetujui untuk menghapus barang keluar dengan kode : " . $id,
+                            'keterangan' => Auth::user()->name . "Menyetujui permintaan menghapus barang keluar dengan kode : " . $id,
                             'tanggal' => Carbon::now()
                         ]);
                     });
@@ -227,7 +228,7 @@ class ApprovalRequestController extends Controller
                         ->withInput()
                         ->with('error', $e->getMessage());
                 }
-            } else if ($validated['status'] === 'rejected') {
+            } else if ($validated['status'] === 'Ditolak') {
 
                 try {
                     ApprovalRequest::where('id_request', $request->id_request)
@@ -238,7 +239,7 @@ class ApprovalRequestController extends Controller
 
                     History::create([
                         'user_id' => Auth::id(),
-                        'keterangan' => Auth::user()->name . "Membatalkan untuk menghapus barang keluar dengan kode : " . $id,
+                        'keterangan' => Auth::user()->name . "Menolak permintaan menghapus barang keluar dengan kode : " . $id,
                         'tanggal' => Carbon::now()
                     ]);
                     return redirect('/approval-request')->with('success', "Data batal dihapus");
@@ -264,8 +265,8 @@ class ApprovalRequestController extends Controller
         );
 
 
-        if ($aksi === 'Input') {
-            if ($validate['status'] === 'approved') {
+        if ($aksi === 'Menambah') {
+            if ($validate['status'] === 'Disetujui') {
                 // jika approved
                 $idRequest = $request->id_request;
 
@@ -295,12 +296,12 @@ class ApprovalRequestController extends Controller
 
                 History::create([
                     'user_id' => Auth::id(),
-                    'keterangan' => Auth::user()->name . ' Mengubah status request Barang masuk : ' . $id_referensi . ' menjadi approved',
+                    'keterangan' => Auth::user()->name . ' Menyetujui permintaan menambah Barang masuk : ' . $id_referensi,
                     'tanggal' => Carbon::now()
                 ]);
 
-                return redirect('/approval-request')->with('success', 'Data barang masuk berhasil di Approved');
-            } else if ($validate['status'] === 'rejected') {
+                return redirect('/approval-request')->with('success', 'Data barang masuk berhasil tersimpan');
+            } else if ($validate['status'] === 'Ditolak') {
                 //  rejected input
 
                 try {
@@ -315,12 +316,12 @@ class ApprovalRequestController extends Controller
 
                     History::create([
                         'user_id' => Auth::id(),
-                        'keterangan' => Auth::user()->name . ' Mengubah status request input barang masuk menjadi rejected dengan kode : ' . $id_referensi,
+                        'keterangan' => Auth::user()->name . 'Menolak permintaan menambah Barang Masuk dengan kode : ' . $id_referensi,
                         'tanggal' => Carbon::now()
                     ]);
 
 
-                    return redirect('/approval-request')->with('success', 'Data barang masuk di Reject');
+                    return redirect('/approval-request')->with('success', 'Menambah barang masuk dibatalkan');
                 } catch (\Exception $e) {
                     // return back()
                     //     ->withInput()
@@ -328,9 +329,9 @@ class ApprovalRequestController extends Controller
                     dd($e->getMessage());
                 }
             }
-        } else if ($aksi === 'Update') {
+        } else if ($aksi === 'Mengubah') {
 
-            if ($validate['status'] === 'approved') {
+            if ($validate['status'] === 'Disetujui') {
                 // approved update
                 $itemPending = BarangMasukPending::find($id_referensi);
                 $barangMasuk = Barangmasuk::find($id_referensi);
@@ -371,12 +372,12 @@ class ApprovalRequestController extends Controller
 
                 History::create([
                     'user_id' => Auth::id(),
-                    'keterangan' => Auth::user()->name . ' Mengubah status request update barang masuk menjadi approved dengan kode : ' . $id_referensi,
+                    'keterangan' => Auth::user()->name . ' Menyetujui permintaan mengubah barang masuk dengan kode : ' . $id_referensi,
                     'tanggal' => Carbon::now()
                 ]);
 
-                return redirect('/approval-request')->with('success', 'Data berhasil di approved');
-            } else if ($validate['status'] === 'rejected') {
+                return redirect('/approval-request')->with('success', 'Data berhasil di ubah');
+            } else if ($validate['status'] === 'Ditolak') {
                 // rejected update
                 $barangMasuk = Barangmasuk::where('kd_barang_masuk', $id_referensi)->firstOrFail();
                 $barangPending = BarangMasukPending::where('kd_barang_masuk_pending', $id_referensi)->firstOrFail();
@@ -394,14 +395,14 @@ class ApprovalRequestController extends Controller
                     ]);
                 History::create([
                     'user_id' => Auth::id(),
-                    'keterangan' => Auth::user()->name . ' Mengubah status request input barang masuk menjadi rejected dengan kode : ' . $id_referensi,
+                    'keterangan' => Auth::user()->name . ' Menolak permintaan mengubah barang masuk dengan kode : ' . $id_referensi,
                     'tanggal' => Carbon::now()
                 ]);
 
-                return redirect('/approval-request')->with('success', 'Request update barang masuk di rejected');
+                return redirect('/approval-request')->with('success', 'Permintaan mengubah barang masuk dibatalkan');
             }
         } else {
-            if ($validate['status'] === 'approved') {
+            if ($validate['status'] === 'Disetujui') {
 
                 $barangMasuk = Barangmasuk::with('barang_master')->where('kd_barang_masuk', $id_referensi)->firstOrFail();
                 $namaBarang = $barangMasuk->barang_master->nama_barang;
@@ -424,7 +425,7 @@ class ApprovalRequestController extends Controller
                 ]);
 
                 return redirect('/approval-request')->with('success', 'Barang masuk berhasil dihapus');
-            } else if ($validate['status'] === 'rejected') {
+            } else if ($validate['status'] === 'Ditolak') {
                 $barangMasuk = Barangmasuk::with('barang_master')->where('kd_barang_masuk', $id_referensi)->firstOrFail();
                 $namaBarang = $barangMasuk->barang_master->nama_barang;
 
@@ -437,11 +438,11 @@ class ApprovalRequestController extends Controller
 
                 History::create([
                     'user_id' => Auth::id(),
-                    'keterangan' => Auth::user()->name . ' Membatalkan menghapus barang masuk ' . $namaBarang . ' dengan kode : ' . $id_referensi,
+                    'keterangan' => Auth::user()->name . ' Menolak menghapus barang masuk ' . $namaBarang . ' dengan kode : ' . $id_referensi,
                     'tanggal' => Carbon::now()
                 ]);
 
-                return redirect('/approval-request')->with('success', 'Membatalkan Barang masuk dihapus');
+                return redirect('/approval-request')->with('success', 'Menghapus barang masuk dibatalkan');
             }
         }
     }
@@ -455,9 +456,9 @@ class ApprovalRequestController extends Controller
             'status.required' => 'Status wajib dipilih'
         ]);
 
-        if ($aksi === 'Input') {
+        if ($aksi === 'Menambah') {
 
-            if ($validated['status'] === 'approved') {
+            if ($validated['status'] === 'Disetujui') {
                 // stok opname approved
                 try {
                     DB::transaction(function () use ($request, $id, $aksi, $validated) {
@@ -488,18 +489,18 @@ class ApprovalRequestController extends Controller
 
                         History::create([
                             'user_id' => Auth::id(),
-                            'keterangan' => Auth::user()->name . ' Mengubah status request input stok opname dengan kode : ' . $opnameHeaderPending->kd_opname_pending . ' Menjadi ' . $validated['status'],
+                            'keterangan' => Auth::user()->name . ' Menyetujui permintaan menambah stok opname dengan kode : ' . $opnameHeaderPending->kd_opname_pending,
                             'tanggal' => Carbon::now()
                         ]);
                     });
 
-                    return redirect('/approval-request')->with('success', 'Request berhasil di approved');
+                    return redirect('/approval-request')->with('success', 'Data berhasil disimpan');
                 } catch (\Exception $e) {
                     return back()
                         ->wihtInput()
                         ->with('error', $e->getMessage());
                 }
-            } else if ($validated['status'] === 'rejected') {
+            } else if ($validated['status'] === 'Ditolak') {
 
                 try {
 
@@ -515,11 +516,11 @@ class ApprovalRequestController extends Controller
 
                     History::create([
                         'user_id' => Auth::id(),
-                        'keterangan' => Auth::user()->name . ' Mengubah status request input stok opname dengan kode : ' . $id . ' Menjadi ' . $validated['status'],
+                        'keterangan' => Auth::user()->name . 'Menolak permintaan menambah stok opname dengan kode : ' . $id,
                         'tanggal' => Carbon::now()
                     ]);
 
-                    return redirect('/approval-request')->with('success', "Request berhasil di reject");
+                    return redirect('/approval-request')->with('success', "Menambah stok opname dibatalkan");
                 } catch (\Exception $e) {
                     return back()
                         ->wihtInput()
@@ -528,7 +529,7 @@ class ApprovalRequestController extends Controller
             }
         } else {
             // delete stok opname
-            if ($validated['status'] === 'approved') {
+            if ($validated['status'] === 'Disetujui') {
                 try {
                     DB::transaction(function () use ($request, $id, $aksi, $validated) {
 
@@ -549,18 +550,18 @@ class ApprovalRequestController extends Controller
 
                         History::create([
                             'user_id' => Auth::id(),
-                            'keterangan' => Auth::user()->name . ' Mengubah status request Delete stok opname dengan kode : ' . $id . ' Menjadi Approved',
+                            'keterangan' => Auth::user()->name . 'Menyetujui permintaan menghapus stok opname dengan kode : ' . $id,
                             'tanggal' => Carbon::now()
                         ]);
                     });
 
-                    return redirect('/approval-request')->with('success', 'Data request berhasil di approved');
+                    return redirect('/approval-request')->with('success', 'Data berhasil dihapus');
                 } catch (\Exception $e) {
                     return back()
                         ->withInput()
                         ->with('error', $e->getMessage());
                 }
-            } else if ($validated['status'] === 'rejected') {
+            } else if ($validated['status'] === 'Ditolak') {
 
                 ApprovalRequest::where('id_request', $request->id_request)
                     ->where('aksi', $aksi)
@@ -570,9 +571,11 @@ class ApprovalRequestController extends Controller
                     ]);
                 History::create([
                     'user_id' => Auth::id(),
-                    'keterangan' => Auth::user()->name . ' Mengubah status request Delete stok opname dengan kode : ' . $id . ' Menjadi ' . $validated['status'],
+                    'keterangan' => Auth::user()->name . ' Menolak permintaan menghapus stok opname dengan kode : ' . $id,
                     'tanggal' => Carbon::now()
                 ]);
+
+                return redirect('/approval-request')->with('success', 'Menghapus stok opname dibatalkan');
             }
         }
     }

@@ -19,6 +19,11 @@ class StokOpnameDetailPending extends Model
     protected $primaryKey = 'id_opname_detail_pending';
     protected $keyType = 'int';
 
+    protected $casts = [
+        'stok_sistem' => 'decimal:2',
+        'stok_fisik' => 'decimal:2',
+    ];
+
     public function stok_opname_header_pending() {
         return $this->belongsTo(StokOpnameHeaderPending::class,"kd_opname_pending");
     }

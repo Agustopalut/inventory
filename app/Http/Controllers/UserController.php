@@ -18,7 +18,7 @@ class UserController extends Controller
 
         $users = User::all();
         return view('user', [
-            'title' => 'User',
+            'title' => 'Pengguna',
             'users' => $users
         ]);
     }

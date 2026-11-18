@@ -82,7 +82,7 @@ class BarangmasukController extends Controller
             'kd_transaksi_pending' => $kode,
             'user_id' => Auth::id(),
             'modul' => 'Barang masuk',
-            'aksi' => 'Input',
+            'aksi' => 'Menambah',
             'tanggal_request' => Carbon::now()
         ]);
 
@@ -94,7 +94,7 @@ class BarangmasukController extends Controller
             'tanggal' => Carbon::now()
         ]);
 
-        return redirect('/barang-masuk')->with('pending', 'Data barang masuk berhasil diinput. Sedang menunggu persetujuan manager');
+        return redirect('/barang-masuk')->with('pending', 'Permintaan menambah barang masuk berhasil terkirim, sedang menunggu persetujuan manager');
     }
 
     public function getBarangForDelete($id)
@@ -104,7 +104,7 @@ class BarangmasukController extends Controller
             'kd_transaksi_pending' => $id,
             'user_id' => Auth::id(),
             'modul' => 'Barang masuk',
-            'aksi' => 'Delete',
+            'aksi' => 'Menghapus',
             'tanggal_request' => Carbon::now()
         ]);
 
@@ -115,7 +115,7 @@ class BarangmasukController extends Controller
             'keterangan' => Auth::user()->name . ' Mengirim permintaan untuk menghapus ' . $barang->barang_master->nama_barang . ' dengan kode : ' . $id,
             'tanggal' => Carbon::now()
         ]);
-        return redirect('/barang-masuk')->with('pending', 'Data barang masuk akan dihapus jika sudah di approve oleh manager');
+        return redirect('/barang-masuk')->with('pending', 'Permintaan menghapus barang berhasil dikirim, sedang menunggu persetujuan manager');
     }
 
     public function update($id) {
@@ -151,7 +151,7 @@ class BarangmasukController extends Controller
             'user_id' => Auth::id(),
             'modul' => 'barang masuk',
             'tanggal_request' => Carbon::now(),
-            'aksi' => 'Update'
+            'aksi' => 'Mengubah'
         ]);
 
         History::create([
@@ -160,7 +160,7 @@ class BarangmasukController extends Controller
             'tanggal' => Carbon::now()
         ]);
 
-        return redirect('/barang-masuk')->with('pending','update barang berhasil dilakukan, sedang menungggu persetujuan manager');
+        return redirect('/barang-masuk')->with('pending','Permintaan mengubah barang berhasil dikirim, sedang menunggu persetujuan manager');
     }
 
     public function details($id) {

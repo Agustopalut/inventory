@@ -19,8 +19,8 @@ return new class extends Migration
             ->references('id_barang')
             ->on('barang_master');
             
-            $table->unsignedInteger('stok_fisik');
-            $table->unsignedInteger('stok_sistem');
+            $table->decimal('stok_fisik',10,2)->default(0);
+            $table->decimal('stok_sistem',10,2)->default(0);
 
             $table->string('kd_opname');
             $table->foreign('kd_opname')

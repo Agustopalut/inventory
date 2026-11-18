@@ -40,7 +40,7 @@
             </div>
             <div class="row mt-5">
                 <div class="col-md-6">
-                    <label for="user" class="form-label">User </label>
+                    <label for="user" class="form-label">Diinput oleh: </label>
                     <input type="text" class="form-control" id="user" value="{{ $barang->user->name }}" disabled readonly>
                 </div>
                 <div class="col-md-6">

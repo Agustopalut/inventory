@@ -138,7 +138,7 @@ class BarangkeluarController extends Controller
                         'kd_transaksi_pending' => $kode,
                         'user_id' => Auth::id(),
                         'modul' => 'Barang keluar',
-                        'aksi' => 'Input',
+                        'aksi' => 'Menambah',
                         'tanggal_request' => Carbon::now()
                     ]);
 
@@ -150,7 +150,7 @@ class BarangkeluarController extends Controller
                     ]);
                     
             });
-            return redirect('/barang-keluar')->with('pending', 'Data barang keluar berhasil diinput, sedang menunggu persetujuan manager!');
+            return redirect('/barang-keluar')->with('pending', 'Permintaan menambah barang keluar berhasil dikirim, sedang menunggu persetujuan manager');
         } catch (\Exception $e) {
             // dd($e);
             return back()
@@ -182,7 +182,7 @@ class BarangkeluarController extends Controller
                     'user_id' => $item->user_id,
                     'modul' => 'Barang keluar',
                     'tanggal_request' => Carbon::now(),
-                    'aksi' => 'Delete',
+                    'aksi' => 'Menghapus',
                 ]);
 
                 History::create([
@@ -192,7 +192,7 @@ class BarangkeluarController extends Controller
                 ]);
             });
 
-            return redirect('/barang-keluar')->with('pending', ' Permintaan delete barang berhasil. Sedang menunggu persetujuan manager');
+            return redirect('/barang-keluar')->with('pending', ' Permintaan delete barang berhasil dikirim, sedang menunggu persetujuan manager');
         } catch (\Exception $e) {
 
             return back()

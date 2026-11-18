@@ -34,6 +34,8 @@ document.addEventListener('DOMContentLoaded', function () {
             <td>
                 <input type="number"
                        name="jumlah[]"
+                       step="0.01" 
+                       min="0.01"
                        class="form-control">
             </td>
             <td>

@@ -1,7 +1,7 @@
 @extends('layout.home')
 
 @section('content')
-    <h1 class="mt-4">Input Userr</h1>
+    <h1 class="mt-4">Menambah Pengguna</h1>
 
     <div class="card mt-4">
         <form action="/add-user" method="post">
@@ -13,7 +13,7 @@
                 <div class="row">
                     <div class="col-12">
                         <div class="mb-3">
-                            <label for="exampleInputEmail1" class="form-label">Nama user</label>
+                            <label for="exampleInputEmail1" class="form-label">Nama Pengguna</label>
                             <input type="text"
                                 class="form-control @error('name')
                             is-invalid
@@ -26,10 +26,10 @@
                             @enderror
                         </div>
                         <div class="mb-3">
-                            <label for="exampleInputPassword1" class="form-label">Role</label>
+                            <label for="exampleInputPassword1" class="form-label">Peran</label>
                             <select name="role" class="form-select @error('role') is-invalid
                             @enderror" id="">
-                                <option value="">Pilih Role</option>
+                                <option value="">Pilih Peran</option>
                                 <option value="manager">Manager</option>
                                 <option value="guest">Guest</option>
                                 <option value="production">Produksi</option>

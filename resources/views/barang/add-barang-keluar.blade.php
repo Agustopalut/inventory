@@ -6,7 +6,7 @@
         @method('POST')
         <div class="row">
             <div class="col-md-6">
-                <h1 class="mt-4">Input Barang keluar</h1>
+                <h1 class="mt-4">Menambah Barang keluar</h1>
             </div>
             <div class="col-md-6">
                 <button type="submit" class="btn btn-primary float-end mt-4" name="submit">Simpan</button>

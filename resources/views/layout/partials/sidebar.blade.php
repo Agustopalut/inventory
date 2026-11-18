@@ -14,7 +14,7 @@
                 @can('melihat-user')
                     <a class="nav-link" href="/users">
                         <div class="sb-nav-link-icon text-light"><i class="fa-solid fa-user"></i></div>
-                        <span class="text-light">User</span>
+                        <span class="text-light">Pengguna</span>
                     </a>
                 @endcan
 
@@ -28,14 +28,13 @@
                         <div class="collapse" id="collapseLayouts" aria-labelledby="headingOne"
                             data-bs-parent="#sidenavAccordion">
                             <nav class="sb-sidenav-menu-nested nav">
-                                <a class="nav-link" href="/barang-master"> <span class="text-light">Barang master</span>
+                                <a class="nav-link" href="/barang-master"> <span class="text-light">Barang Utama</span>
                                 </a>
-                                <a class="nav-link" href="/barang-masuk"> <span class="text-light">Barang masuk</span> </a>
-                                <a class="nav-link" href="/barang-keluar"> <span class="text-light">Barang keluar</span>
+                                <a class="nav-link" href="/barang-masuk"> <span class="text-light">Barang Masuk</span> </a>
+                                <a class="nav-link" href="/barang-keluar"> <span class="text-light">Barang Keluar</span>
                                 </a>
-                                <a class="nav-link" href="/stok-opname"> <span class="text-light">Stok opname</span> </a>
-                                <a class="nav-link" href="/approval-request"> <span class="text-light">Approval
-                                        request</span> </a>
+                                <a class="nav-link" href="/stok-opname"> <span class="text-light">Stok Opname</span> </a>
+                                <a class="nav-link" href="/approval-request"> <span class="text-light">Permintaan Persetujuan</span> </a>
                             </nav>
                         </div>
                     </a>

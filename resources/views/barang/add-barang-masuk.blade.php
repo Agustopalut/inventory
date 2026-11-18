@@ -1,7 +1,7 @@
 @extends('layout.home')
 
 @section('content')
-    <h1 class="mt-4">Input Barang masuk</h1>
+    <h1 class="mt-4">Menambah Barang Masuk</h1>
 
     <div class="card mt-4">
         <form action="/input-barang-masuk" method="post">

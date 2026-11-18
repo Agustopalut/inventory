@@ -6,7 +6,7 @@
         @method('POST')
         <div class="row">
             <div class="col-md-6">
-                <h1 class="mt-4">Input Stok opname</h1>
+                <h1 class="mt-4">Menambah Data Stok opname</h1>
             </div>
             <div class="col-md-6">
                 <input type="date" name="tanggal_opname" class="form-control mt-5" id="">
@@ -43,9 +43,11 @@
                         <th scope="row">{{ $loop->iteration }}</th>
                         <td><input type="text" value="{{ $data->nama_barang }}" class="form-control form-control-sm"
                                 readonly></td>
-                        <td><input type="text" name="stok_sistem[]" value="{{ $data->stok }}"
+                        <td><input type="text" name="stok_sistem[]" step="0.01"
+    min="0.01" value="{{ $data->satuan === 'Kg' ? rtrim(rtrim(number_format($data->stok, 2, '.', ''), '0'), '.') : (int)$data->stok }}"
                                 class="form-control form-control-sm" readonly></td>
-                        <td><input type="text" name="stok_fisik[]"
+                        <td><input type="text" step="0.01"
+    min="0.01" name="stok_fisik[]"
                                 class="form-control form-control-sm @error('stok_fisik[]')
                             is-invalid
                         @enderror ">

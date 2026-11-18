@@ -6,11 +6,11 @@
         <td class="text-center">{{ $item->tujuan }}</td>
         <td class="text-center">{{ $item->users->name }}</td>
         <td class="text-center">
-            <a href="/barang-keluar/{{ $item->kd_barang_keluar }}" class="btn btn-success">Details</a>
+            <a href="/barang-keluar/{{ $item->kd_barang_keluar }}" class="btn btn-success">Lihat</a>
             @can('delete-barang-keluar')
                 <form action="/delete/barang-keluar/{{ $item->kd_barang_keluar }}" class="d-inline" method="GET">
                     @csrf
-                    <button type="" class="btn btn-delete btn-danger">Delete</button>
+                    <button type="" class="btn btn-delete btn-danger">Hapus</button>
                 </form>
             @endcan
         </td>

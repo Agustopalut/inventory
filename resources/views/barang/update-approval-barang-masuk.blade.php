@@ -1,13 +1,13 @@
 @extends('layout.home')
 
 @section('content')
-    <h1 class="mt-4">Approval Barang masuk : {{ $aksi }}</h1>
+    <h1 class="mt-4">Permintaan Persetujuan Barang Masuk : {{ $aksi }}</h1>
 
     <div class="card mt-4">
         <form action="/update/approval/{{ $id_referensi->kd_transaksi_pending }}/{{ $aksi }}" method="post">
             @csrf
             <div class="card-header text-end">
-                <button class="btn btn-primary btn-sm" type="submit" name="submit">Update</button>
+                <button class="btn btn-primary btn-sm" type="submit" name="submit">Simpan</button>
             </div>
             <input type="hidden" name="id_request" value="{{ $idRequest }}">
             <div class="card-body">
@@ -52,9 +52,9 @@
                         <select name="status" id="" class="form-select mt-3 @error('status')
                             is-invalid
                         @enderror" id="approval"">
-                            <option value="" selected>Pending</option>
-                            <option value="approved">Approve</option>
-                            <option value="rejected">Reject</option>
+                            <option value="" selected>Menunggu Persetujuan</option>
+                            <option value="Disetujui">Disetujui</option>
+                            <option value="Ditolak">Ditolak</option>
                         </select>
                         @error('status')
                             <div class="invalid-feedback">{{ $message }}</div>

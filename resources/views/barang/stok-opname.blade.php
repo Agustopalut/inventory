@@ -17,10 +17,10 @@
         <thead>
             <tr class="text-center">
                 <th scope="col-md-2">Kode Opname</th>
-                <th scope="col-md-4">Tanggal</th>
-                <th scope="col-md-4">User</th>
-                <th scope="col-md-4">Jumlah barang yang dicek</th>
-                <th scope="col-md-2">Action</th>
+                <td scope="col-md-4">Tanggal</td>
+                <td scope="col-md-4">Diinput Oleh</td>
+                <td scope="col-md-4">Jumlah barang yang dicek</td>
+                <td scope="col-md-2">Aksi</td>
             </tr>
         </thead>
         <tbody id="tableStokOpname">
@@ -83,7 +83,7 @@
         <script>
             Swal.fire({
                 icon: 'warning',
-                title: 'Berhasil',
+                title: 'Menunggu',
                 text: "{{ session('pending') }}",
                 confirmButtonColor: '#3085d6'
             });

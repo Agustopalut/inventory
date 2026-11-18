@@ -1,12 +1,12 @@
 @extends('layout.home')
 
 @section('content')
-    <h1 class="mt-4">User</h1>
+    <h1 class="mt-4">Pengguna</h1>
 
     @can('input-user')
         <div class="row">
             <div class="col-md-9">
-                <a href="/add-user" class="btn btn-primary">Add User</a>
+                <a href="/add-user" class="btn btn-primary">Tambah Pengguna</a>
             </div>
         </div>
     @endcan
@@ -15,10 +15,10 @@
         <thead>
             <tr class="text-center">
                 <th scope="col-md-2">No</th>
-                <th scope="col-md-4">Name</th>
-                <th scope="col-md-4">Role</th>
+                <th scope="col-md-4">Nama</th>
+                <th scope="col-md-4">Peran</th>
                 @can('update-user')
-                    <th scope="col-md-2">Action</th>
+                    <th scope="col-md-2">Aksi</th>
                 @endcan
 
             </tr>
@@ -32,12 +32,12 @@
                     <td>{{ $user->getRoleNames()->first() }}</td>
                     @can('update-user')
                         <td>
-                            <a href="/update/user/{{ $user->id }}" class="btn btn-primary">Update</a>
+                            <a href="/update/user/{{ $user->id }}" class="btn btn-primary">Ubah</a>
 
                             <form action="/delete/user/{{ $user->id }}" method="post" class="d-inline">
                                 @csrf
                                 @method('DELETE')
-                                <button type="submit" class="btn btn-delete btn-danger">Delete</button>
+                                <button type="submit" class="btn btn-delete btn-danger">Hapus</button>
                             </form>
 
                         </td>

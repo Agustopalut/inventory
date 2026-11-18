@@ -6,7 +6,7 @@
     <div class="row mt-5">
         @can('input-barang-masuk')
             <div class="col-md-9">
-                <a href="/input-barang-masuk" class="btn btn-primary">Tambah barang</a>
+                <a href="/input-barang-masuk" class="btn btn-primary">Tambah Data</a>
             </div>
         @endcan
 
@@ -25,7 +25,7 @@
                 <td class="text-center" scope="col-md-2">Sisa</td>
                 <td class="text-center" scope="col-md-2">Harga satuan</td>
                 <td class="text-center" scope="col-md-2">Subtotal</td>
-                <td class="text-center" scope="col-md-2">Actions</td>
+                <td class="text-center" scope="col-md-2">Aksi</td>
             </tr>
         </thead>
         <tbody id="tableBarangMasuk">
@@ -99,7 +99,7 @@
         <script>
             Swal.fire({
                 icon: 'warning',
-                title: 'Berhasil',
+                title: 'Menunggu!',
                 text: "{{ session('pending') }}",
                 confirmButtonColor: '#3085d6'
             });
