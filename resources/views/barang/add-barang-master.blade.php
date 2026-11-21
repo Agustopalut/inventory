@@ -11,9 +11,9 @@
             </div>
             <div class="card-body">
                 <div class="mb-3">
-                    <label for="exampleInputEmail1" class="form-label">Nama barang</label>
+                    <label for="exampleInputEmail1" class="form-label text-capitalize">Nama barang</label>
                     <input type="text"
-                        class="form-control @error('nama_barang')
+                        class="form-control text-capitalize @error('nama_barang')
                             is-invalid
                         @enderror"
                         name="nama_barang" id="exampleInputEmail1" aria-describedby="emailHelp" autocomplete="off">
@@ -25,7 +25,7 @@
                 </div>
                 <div class="mb-3">
                     <label for="exampleInputPassword1" class="form-label">Satuan</label>
-                    <input type="text" class="form-control @error('satuan')
+                    <input type="text" class="form-control text-capitalize @error('satuan')
                         is-invalid
                     @enderror" name="satuan" id="exampleInputPassword1" autocomplete="off">
                     @error('satuan')

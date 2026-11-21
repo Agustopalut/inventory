@@ -52,7 +52,7 @@ class BarangmasukController extends Controller
     {
         $validate = $request->validate([
             'id_barang' => 'required',
-            'harga_satuan' => 'required',
+            'harga_satuan' => 'required|numeric',
             'jumlah' => 'required|numeric',
             'tanggal_masuk' => 'required|date'
         ], [
@@ -92,7 +92,7 @@ class BarangmasukController extends Controller
         History::create([
             'user_id' => Auth::id(),
             'id_referesni' => $kode,
-            'keterangan' => Auth::user()->name . ' Menambahkan barang masuk ' . $barang->nama_barang . ' dengan kode : ' . $kode,
+            'keterangan' => Auth::user()->name . ' mengirim permintaan persetujuan menambah barang masuk ' . $barang->nama_barang . ' dengan kode : ' . $kode,
             'tanggal' => Carbon::now()
         ]);
 
@@ -164,6 +164,16 @@ class BarangmasukController extends Controller
             'jumlah' => $validate['jumlah'],
             'harga_satuan' => $validate['harga_satuan']
         ]);
+
+        // menangkap barang yang sudah dikeluar
+        $totalKeluar = BarangkeluarDetail::where('kd_barang_masuk', $id)->sum('jumlah_yang_diambil');
+        $jumlahBaru = (float) $validate['jumlah'];
+        $totalKeluar = (float) $totalKeluar;
+
+        // jumlah yang diubah tidak boleh lebih kecil dari barang yang sudah dikeluarkan
+        if ($jumlahBaru < $totalKeluar) {
+            return redirect()->back()->with('error', 'Jumlah masuk tidak boleh lebih kecil dari jumlah barang yang sudah dikeluarkan.');
+        }
 
         ApprovalRequest::create([
             'kd_transaksi_pending' => $barangPending->kd_barang_masuk_pending,

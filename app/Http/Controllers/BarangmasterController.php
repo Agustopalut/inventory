@@ -31,16 +31,20 @@ class BarangmasterController extends Controller
     {
 
         $validated = $request->validate([
-            'nama_barang' => 'required',
+            'nama_barang' => 'required|regex:/^[\pL\pN\s.-]+$/u|string|max:100|min:3',
             'satuan' => 'required',
         ], [
             'nama_barang.required' => 'nama barang wajib diisi',
+            'nama_barang.regex' => "Masukan nama barang dengan benar, tidak boleh menggunakan simbol atau angka",
             'satuan.required' => 'satuan wajib diisi'
         ]);
 
+        $namaBarang = ucwords(strtolower($validated['nama_barang']));
+        $satuanBarang = ucwords(strtolower($validated['satuan']));
+
         $proses =  Barangmaster::create([
-            'nama_barang' => $validated['nama_barang'],
-            'satuan' => $validated['satuan'],
+            'nama_barang' => $namaBarang,
+            'satuan' => $satuanBarang,
             'user_id' => Auth::id()
         ]);
 

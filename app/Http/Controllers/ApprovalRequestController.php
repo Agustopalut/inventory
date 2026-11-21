@@ -336,6 +336,7 @@ class ApprovalRequestController extends Controller
                 // approved update
                 $itemPending = BarangMasukPending::find($id_referensi);
                 $barangMasuk = Barangmasuk::find($id_referensi);
+                $barangMaster = Barangmaster::where('id_barang',$barangMasuk->id_barang);
                 $getApproval = ApprovalRequest::where('kd_transaksi_pending', $id_referensi);
                 $validate = $request->validate(
                     [
@@ -350,13 +351,11 @@ class ApprovalRequestController extends Controller
                 $totalKeluar = BarangkeluarDetail::where('kd_barang_masuk', $id_referensi)->sum('jumlah_yang_diambil');
                 $jumlahBaru = (float) $itemPending->jumlah;
                 $totalKeluar = (float) $totalKeluar;
-
-                // jumlah yang diubah tidak boleh lebih kecil dari barang yang sudah dikeluarkan
-                if ($jumlahBaru < $totalKeluar) {
-                    return redirect()->back()->with('error', 'Jumlah masuk tidak boleh lebih kecil dari jumlah barang yang sudah dikeluarkan.');
-                }
+                $jumlahLama = (float) $barangMasuk->jumlah;
 
                 $sisaBaru = $jumlahBaru - $totalKeluar;
+                $selisih = $jumlahBaru - $jumlahLama;
+                $barangMaster->increment('stok',$selisih);
 
                 $barangMasuk->update([
                     'jumlah' => $itemPending->jumlah,

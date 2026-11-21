@@ -49,9 +49,11 @@
                 <div class="row mt-5">
                     <div class="col-md-4">
                         <label for="approval" class="formlabel">Update status</label>
-                        <select name="status" id="" class="form-select mt-3 @error('status')
+                        <select name="status" id=""
+                            class="form-select mt-3 @error('status')
                             is-invalid
-                        @enderror" id="approval"">
+                        @enderror"
+                            id="approval"">
                             <option value="" selected>Menunggu Persetujuan</option>
                             <option value="Disetujui">Disetujui</option>
                             <option value="Ditolak">Ditolak</option>
@@ -67,3 +69,15 @@
         </form>
     </div>
 @endsection
+@push('scripts')
+    @if (session('error'))
+        <script>
+            Swal.fire({
+                icon: 'error',
+                title: 'Gagal',
+                text: "{{ session('error') }}",
+                confirmButtonColor: '#3085d6'
+            });
+        </script>
+    @endif
+@endpush
