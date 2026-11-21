@@ -17,6 +17,7 @@ use App\Models\StokOpnameHeader;
 use App\Models\StokOpnameHeaderPending;
 use Carbon\Carbon;
 use ErrorException;
+use Exception;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\DB;
@@ -27,7 +28,7 @@ class ApprovalRequestController extends Controller
     {
 
         $data = ApprovalRequest::latest()
-        ->paginate(10);
+            ->paginate(10);
         return view('barang.approval-request', [
             'title' => 'Approval Request',
             'data' => $data
@@ -91,7 +92,7 @@ class ApprovalRequestController extends Controller
 
     public function updateStatusBarangout(Request $request, $id, $aksi)
     {
-        
+
         $validated = $request->validate([
             'status' => 'required'
         ], [
@@ -404,27 +405,34 @@ class ApprovalRequestController extends Controller
         } else {
             if ($validate['status'] === 'Disetujui') {
 
-                $barangMasuk = Barangmasuk::with('barang_master')->where('kd_barang_masuk', $id_referensi)->firstOrFail();
-                $namaBarang = $barangMasuk->barang_master->nama_barang;
-                $barangMasukPending = BarangmasukPending::where('kd_barang_masuk_pending', $id_referensi)->firstOrFail();
+                try {
+                    DB::transaction(function () use ($request,$id_referensi,$validate,$aksi) {
 
-                $barangMasuk->delete();
-                $barangMasukPending->delete();
+                        $barangMasuk = Barangmasuk::with('barang_master')->where('kd_barang_masuk', $id_referensi)->firstOrFail();
+                        $namaBarang = $barangMasuk->barang_master->nama_barang;
+                        $barangMasukPending = BarangmasukPending::where('kd_barang_masuk_pending', $id_referensi)->firstOrFail();
 
-                ApprovalRequest::where('kd_transaksi_pending', $id_referensi)
-                    ->where('aksi', $aksi)
-                    ->where('id_request', $request->id_request)
-                    ->update([
-                        'status' => $validate['status']
-                    ]);
+                        $barangMasuk->delete();
+                        $barangMasukPending->delete();
 
-                History::create([
-                    'user_id' => Auth::id(),
-                    'keterangan' => Auth::user()->name . ' Menyetujui menghapus barang masuk ' . $namaBarang . ' dengan kode : ' . $id_referensi,
-                    'tanggal' => Carbon::now()
-                ]);
+                        ApprovalRequest::where('kd_transaksi_pending', $id_referensi)
+                            ->where('aksi', $aksi)
+                            ->where('id_request', $request->id_request)
+                            ->update([
+                                'status' => $validate['status']
+                            ]);
 
-                return redirect('/approval-request')->with('success', 'Barang masuk berhasil dihapus');
+                        History::create([
+                            'user_id' => Auth::id(),
+                            'keterangan' => Auth::user()->name . ' Menyetujui menghapus barang masuk ' . $namaBarang . ' dengan kode : ' . $id_referensi,
+                            'tanggal' => Carbon::now()
+                        ]);
+
+                        return redirect('/approval-request')->with('success', 'Barang masuk berhasil dihapus');
+                    });
+                } catch (\Exception $e) {
+                    return redirect('/barang-masuk')->with('error', $e->getMessage());
+                }
             } else if ($validate['status'] === 'Ditolak') {
                 $barangMasuk = Barangmasuk::with('barang_master')->where('kd_barang_masuk', $id_referensi)->firstOrFail();
                 $namaBarang = $barangMasuk->barang_master->nama_barang;

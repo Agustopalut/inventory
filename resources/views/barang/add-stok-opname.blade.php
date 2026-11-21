@@ -9,7 +9,9 @@
                 <h1 class="mt-4">Menambah Data Stok opname</h1>
             </div>
             <div class="col-md-6">
-                <input type="date" name="tanggal_opname" class="form-control mt-5" id="">
+                <input type="date" name="tanggal_opname" class="form-control mt-5 @error('tanggal_opname')
+                is-invalid
+            @enderror" id="">
             </div>
         </div>
 
@@ -18,11 +20,11 @@
             <textarea name="keterangan" id=""
                 class="form-control mt-2 @error('keterangan')
                 is-invalid
-            @enderror "></textarea>
+            @enderror ">{{ old('keterangan') }}</textarea>
             @error('keterangan')
                 <div class="invalid-feedback">{{ $message }}</div>
             @enderror
-            @error('stok_fisik[]')
+            @error('stok_fisik')
                 <div class="invalid-feedback">{{ $message }}</div>
             @enderror
         </div>
@@ -37,7 +39,7 @@
                 </tr>
             </thead>
             <tbody>
-                @foreach ($item as $data)
+                @foreach ($item as $index => $data)
                     <input type="hidden" name="id_barang[]" class="form-control" value="{{ $data->id_barang }}" readonly>
                     <tr class="text-center">
                         <th scope="row">{{ $loop->iteration }}</th>
@@ -48,9 +50,9 @@
                                 class="form-control form-control-sm" readonly></td>
                         <td><input type="text" step="0.01"
     min="0.01" name="stok_fisik[]"
-                                class="form-control form-control-sm @error('stok_fisik[]')
+                                class="form-control form-control-sm @error('stok_fisik.'. $index)
                             is-invalid
-                        @enderror ">
+                        @enderror " value="{{ old('stok_fisik.' . $index) }}">
                         </td>
 
                         <td><input type="text" value="{{ $data->satuan }}" class="form-control form-control-sm" disabled

@@ -87,9 +87,9 @@
     @if (session('error'))
         <script>
             Swal.fire({
-                icon: 'success',
-                title: 'Berhasil',
-                text: "{{ session('success') }}",
+                icon: 'error',
+                title: 'Gagal',
+                text: "{{ session('error') }}",
                 confirmButtonColor: '#3085d6'
             });
         </script>

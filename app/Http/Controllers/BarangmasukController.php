@@ -3,11 +3,13 @@
 namespace App\Http\Controllers;
 
 use App\Models\ApprovalRequest;
+use App\Models\BarangkeluarDetail;
 use App\Models\Barangmaster;
 use App\Models\Barangmasuk;
 use App\Models\BarangMasukPending;
 use App\Models\History;
 use Carbon\Carbon;
+use Exception;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\DB;
@@ -18,8 +20,8 @@ class BarangmasukController extends Controller
     public function index()
     {
         $data = Barangmasuk::with('barang_master')
-        ->latest()
-        ->get();
+            ->latest()
+            ->get();
         return view('barang.barang-masuk', [
             'title' => 'barang masuk',
             'barangmasuk' => $data,
@@ -100,47 +102,64 @@ class BarangmasukController extends Controller
     public function getBarangForDelete($id)
     {
 
-        ApprovalRequest::create([
-            'kd_transaksi_pending' => $id,
-            'user_id' => Auth::id(),
-            'modul' => 'Barang masuk',
-            'aksi' => 'Menghapus',
-            'tanggal_request' => Carbon::now()
-        ]);
+        try {
+            DB::transaction(function () use ($id) {
+                $barang = Barangmasuk::with('barang_master')->where('kd_barang_masuk', $id)->firstOrFail();
 
-        $barang = Barangmasuk::with('barang_master')->where('kd_barang_masuk', $id)->firstOrFail();
-        History::create([
-            'user_id' => Auth::id(),
-            'id_referesni' => $id,
-            'keterangan' => Auth::user()->name . ' Mengirim permintaan untuk menghapus ' . $barang->barang_master->nama_barang . ' dengan kode : ' . $id,
-            'tanggal' => Carbon::now()
-        ]);
-        return redirect('/barang-masuk')->with('pending', 'Permintaan menghapus barang berhasil dikirim, sedang menunggu persetujuan manager');
+                $sudahDigunakan = BarangkeluarDetail::where('kd_barang_masuk', $barang->kd_barang_masuk)
+                    ->exists();
+
+                if ($sudahDigunakan) {
+                    throw new Exception('Barang sudah digunakan transaksi barang keluar');
+                }
+
+                ApprovalRequest::create([
+                    'kd_transaksi_pending' => $id,
+                    'user_id' => Auth::id(),
+                    'modul' => 'Barang masuk',
+                    'aksi' => 'Menghapus',
+                    'tanggal_request' => Carbon::now()
+                ]);
+
+
+                History::create([
+                    'user_id' => Auth::id(),
+                    'id_referesni' => $id,
+                    'keterangan' => Auth::user()->name . ' Mengirim permintaan untuk menghapus ' . $barang->barang_master->nama_barang . ' dengan kode : ' . $id,
+                    'tanggal' => Carbon::now()
+                ]);
+            });
+            return redirect('/barang-masuk')->with('pending', 'Permintaan menghapus barang berhasil dikirim, sedang menunggu persetujuan manager');
+        } catch (\Exception $e) {
+            return redirect('/barang-masuk')->with('error', $e->getMessage());
+        }
     }
 
-    public function update($id) {
+    public function update($id)
+    {
         $barang = Barangmasuk::with('barang_master')->findOrFail($id);
-        $subtotal =$barang->harga_satuan * $barang->jumlah;
-        $total = 'Rp'.number_format($subtotal, 0, ',', '.');
+        $subtotal = $barang->harga_satuan * $barang->jumlah;
+        $total = 'Rp' . number_format($subtotal, 0, ',', '.');
 
-        return view('barang.update-barang-masuk',[
+        return view('barang.update-barang-masuk', [
             'title' => 'update barang masuk',
             'barang' => $barang,
             'subtotal' => $total
         ]);
     }
 
-    public function updateStore(Request $request, $id) {
+    public function updateStore(Request $request, $id)
+    {
         $barangPending = BarangMasukPending::find($id);
 
         $validate = $request->validate([
             'jumlah' => 'required',
             'harga_satuan' => 'required'
-        ],[
+        ], [
             'jumlah.required' => 'Jumlah barang wajib diisi',
             'harga_satuan.required'
         ]);
-        
+
         $barangPending->update([
             'jumlah' => $validate['jumlah'],
             'harga_satuan' => $validate['harga_satuan']
@@ -160,46 +179,47 @@ class BarangmasukController extends Controller
             'tanggal' => Carbon::now()
         ]);
 
-        return redirect('/barang-masuk')->with('pending','Permintaan mengubah barang berhasil dikirim, sedang menunggu persetujuan manager');
+        return redirect('/barang-masuk')->with('pending', 'Permintaan mengubah barang berhasil dikirim, sedang menunggu persetujuan manager');
     }
 
-    public function details($id) {
-        $barang = Barangmasuk::with(['barang_master','user'])->find($id);
+    public function details($id)
+    {
+        $barang = Barangmasuk::with(['barang_master', 'user'])->find($id);
         $subtotal = $barang->harga_satuan * $barang->jumlah;
-        $total ='Rp'. number_format($subtotal, 0, ',', '.');
-        return view('barang.detail-barang-masuk',[
+        $total = 'Rp' . number_format($subtotal, 0, ',', '.');
+        return view('barang.detail-barang-masuk', [
             'title' => 'detail barang masuk',
             'barang' => $barang,
             'subtotal' => $total
         ]);
     }
 
-    public function cetak() {
+    public function cetak()
+    {
         // $data = Barangmasuk::with(['user','barang_master'])->get();
-        return view('barang.cetak-barang-masuk',[
+        return view('barang.cetak-barang-masuk', [
             'title' => 'Cetak barang masuk',
             'data' => collect(),
             'jenisLaporan' => ''
         ]);
     }
 
-    public function filterbarangmasuk(Request $request) {
+    public function filterbarangmasuk(Request $request)
+    {
         // dd([$request->bulan,$request->tahun]);
-        $query = Barangmasuk::with(['barang_master','user']);
-        if($request->laporan === 'harian'){
+        $query = Barangmasuk::with(['barang_master', 'user']);
+        if ($request->laporan === 'harian') {
             $request->validate([
                 'tanggal_awal' => 'required|date',
                 'tanggal_akhir' => 'required|date|after_or_equal:tanggal_awal'
             ]);
 
             $query
-                ->whereDate('tanggal_masuk','>=',$request->tanggal_awal)
-                ->whereDate('tanggal_masuk','<=',$request->tanggal_akhir);
-            $filterFirst= $request->tanggal_awal;
-            $filterSecond= $request->tanggal_akhir;
-
-
-        } else if($request->laporan ==='bulan') {
+                ->whereDate('tanggal_masuk', '>=', $request->tanggal_awal)
+                ->whereDate('tanggal_masuk', '<=', $request->tanggal_akhir);
+            $filterFirst = $request->tanggal_awal;
+            $filterSecond = $request->tanggal_akhir;
+        } else if ($request->laporan === 'bulan') {
 
             $request->validate([
                 'bulan' => 'required|integer|between:1,12',
@@ -207,25 +227,24 @@ class BarangmasukController extends Controller
             ]);
 
             $query
-                ->whereMonth('tanggal_masuk',$request->bulan)
-                ->whereYear('tanggal_masuk',$request->tahun);
-            
-            $filterFirst= $request->bulan;
-            $filterSecond= $request->tahun;
+                ->whereMonth('tanggal_masuk', $request->bulan)
+                ->whereYear('tanggal_masuk', $request->tahun);
 
+            $filterFirst = $request->bulan;
+            $filterSecond = $request->tahun;
         }
 
-        $data = $query  
-                        ->orderBy('tanggal_masuk','asc')
-                        ->get();
+        $data = $query
+            ->orderBy('tanggal_masuk', 'asc')
+            ->get();
 
-        if($data->isEmpty()) {
+        if ($data->isEmpty()) {
             return back()
                 ->withInput()
-                ->with('error',"Data tidak ditemukan");
+                ->with('error', "Data tidak ditemukan");
         }
 
-        return view('barang.cetak-barang-masuk',[
+        return view('barang.cetak-barang-masuk', [
             'data' => $data,
             'title' => 'cetak barang masuk',
             'filterFirst' => $filterFirst,
@@ -234,23 +253,24 @@ class BarangmasukController extends Controller
         ]);
     }
 
-    public function search(Request $request) {
+    public function search(Request $request)
+    {
 
-    // dd("FILE BERJALAN");
+        // dd("FILE BERJALAN");
         $keyword = $request->keyword;
 
         $barangmasuk = Barangmasuk::with('barang_master')
             ->where(function ($query) use ($keyword) {
-                $query->where('kd_barang_masuk','like',"%{$keyword}%")
+                $query->where('kd_barang_masuk', 'like', "%{$keyword}%")
                     ->orWhereHas('barang_master', function ($q) use ($keyword) {
-                        $q->where('nama_barang','like',"%{$keyword}%");
+                        $q->where('nama_barang', 'like', "%{$keyword}%");
                     });
             })
             ->latest()
             ->get();
 
         return response()->json([
-            'html' => view('barang.table.table-barang-masuk',[
+            'html' => view('barang.table.table-barang-masuk', [
                 'barangmasuk' => $barangmasuk
             ])->render()
         ]);
